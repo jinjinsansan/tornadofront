@@ -475,6 +475,27 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          {/* How to use */}
+          <div className="bg-tornado-card border border-tornado-border rounded-xl p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold">🗺️ 使い方（おすすめ順）</p>
+              <Link href="/chat" className="text-xs text-tornado-accent underline">
+                AIに相談 →
+              </Link>
+            </div>
+            <ol className="list-decimal pl-5 text-xs text-tornado-muted space-y-1">
+              <li>下の「🌪️ 買い目生成」でベースを作る（予算/目標/リスク）。</li>
+              <li>各レースを開いて、馬をタップして増減（点数/投資は自動計算）。</li>
+              <li>「💾 保存」で当日用に残す（履歴で比較できます）。</li>
+              <li>「🧪 1頭飛んだら？」「👥 被り度」「🔥 爆発ヒートマップ」で仕上げ。</li>
+            </ol>
+            {Object.keys(customTickets).length === 0 && (
+              <p className="text-xs text-tornado-muted">
+                まずは「🌪️ 買い目生成」を押すと、すぐに買い目が入ります。
+              </p>
+            )}
+          </div>
+
           {/* Strategy / Survival / Explosion */}
           {Object.keys(customTickets).length > 0 && (
             <div className="bg-tornado-card border border-tornado-border rounded-xl p-4 space-y-2">

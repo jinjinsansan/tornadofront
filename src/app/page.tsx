@@ -43,7 +43,7 @@ const features = [
     title: "買い目",
     titleHighlight: "自動生成",
     subtitle: "予算と目標を言うだけ。AIが最適解を出す",
-    desc: "「予算5,000円で500万狙いたい」——それだけでいい。AIが波乱度に応じて各レースの頭数を配分し、予算内に収まる最適な買い目を自動生成する。期待値計算・的中確率・想定配当レンジまで全部出す。",
+    desc: "「予算5,000円で500万狙いたい」——それだけでOK。AIが波乱度に応じて各レースの頭数を配分し、予算内に収まる買い目を自動生成。的中率/期待値/想定配当レンジまで出し、生成後は馬をタップして微調整→保存できる。",
   },
   {
     tag: "Feature 03",
@@ -66,7 +66,7 @@ const features = [
     title: "AI戦略",
     titleHighlight: "チャット",
     subtitle: "WIN5専門AIに、何でも聞ける",
-    desc: "「高松宮記念は荒れる？」「穴狙いで組んで」「R3だけ1頭に絞りたい」——自然言語で聞けば、WIN5の文脈に完全に接地したAIが即座に回答。買い目の調整も、戦略の相談も、全部チャットで完結する。",
+    desc: "「荒れるレースだけ広げたい」「R3だけ1頭に絞りたい」——自然言語で聞けば、WIN5の文脈に接地したAIが即答。提案買い目はダッシュボードに反映して、そのまま調整・保存まで進められる。",
     chatMessages: [
       { role: "user", text: "予算5000円で500万狙いたいです" },
       { role: "ai", text: "いいですね。波乱度的にR3とR5を広げて、堅いR2は1頭に絞るのがベストです。48点の組み合わせでご提案しますね。" },
@@ -86,12 +86,12 @@ export default function Home() {
             <span className="text-lg font-black tracking-wide">TornadoAI</span>
           </div>
           <nav className="flex items-center gap-3 sm:gap-5">
-            <Link href="/login" className="hidden sm:inline text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
+            <Link href="/dashboard" className="hidden sm:inline text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
             <Link
               href="/login"
               className="text-sm px-5 py-2.5 bg-gradient-to-r from-tornado-accent to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
             >
-              AIに相談
+              招待コードでログイン
             </Link>
           </nav>
         </div>
@@ -135,7 +135,7 @@ export default function Home() {
             transition={{ duration: 0.7, delay: 0.5 }}
             className="mb-12 mt-6 max-w-2xl text-base font-light leading-relaxed text-white/60 md:text-xl"
           >
-            予算と目標配当を伝えるだけ。AIが5レースの最適な買い目を自動設計する。
+            予算と目標配当を入れるだけ。AIが買い目を自動設計し、被り度・爆発ヒートマップ・1頭飛びで当日まで調整できる。
           </motion.p>
 
           <motion.div
@@ -153,10 +153,10 @@ export default function Home() {
               }}
             >
               <Sparkles className="h-5 w-5" />
-              無料で始める
+              招待コードでログイン
             </Link>
             <Link
-              href="/login"
+              href="/dashboard"
               className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/15 bg-white/5 px-8 py-5 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-tornado-orange/50 hover:bg-tornado-orange/10 hover:text-tornado-orange active:scale-95"
             >
               <BarChart3 className="h-5 w-5" />
@@ -174,7 +174,7 @@ export default function Home() {
             {[
               { value: "5", label: "レース横断分析" },
               { value: "3", label: "シナリオ同時提示" },
-              { value: "∞", label: "AIと戦略相談" },
+              { value: "🔥", label: "爆発/被り分析" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <p className="text-2xl font-black tracking-tight sm:text-3xl bg-gradient-to-r from-tornado-accent to-tornado-gold bg-clip-text text-transparent">
@@ -429,7 +429,7 @@ export default function Home() {
               {[
                 { step: "01", icon: DollarSign, title: "予算を決める", desc: "今週のWIN5にいくら使うか。1,000円〜自由に設定。", color: "#ef4444" },
                 { step: "02", icon: Zap, title: "AIが買い目を設計", desc: "波乱度・AI指数・オッズから5レースの最適な頭数配分を自動計算。", color: "#f97316" },
-                { step: "03", icon: Target, title: "選んで購入", desc: "3シナリオから好みを選ぶだけ。あとはIPATで購入。", color: "#fbbf24" },
+                { step: "03", icon: Target, title: "調整→保存→分析", desc: "馬をタップして微調整し、保存。被り度/爆発ヒートマップ/1頭飛びで当日まで詰める。", color: "#fbbf24" },
               ].map((item) => (
                 <div key={item.step} className="text-center">
                   <div
@@ -451,6 +451,42 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ━━━ Dashboard power ━━━ */}
+        <section className="relative py-16 sm:py-28 lg:py-36" style={{ background: "#060a16" }}>
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto mb-12 max-w-3xl text-center">
+              <span className="mb-4 block text-sm font-bold tracking-widest text-tornado-accent uppercase">Dashboard</span>
+              <h2 className="text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
+                当日まで使える<span className="bg-gradient-to-r from-tornado-accent to-tornado-orange bg-clip-text text-transparent">分析機能</span>
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-white/50">
+                生成して終わりではなく、買い目を「磨く」ための機能をまとめています。
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[
+                { icon: Layers, title: "保存 & 履歴", desc: "買い目を保存して比較。日曜朝に見返せる。", color: "#fbbf24" },
+                { icon: PieChart, title: "被り度チェック", desc: "他ユーザーの傾向から“混み具合”を確認。", color: "#60a5fa" },
+                { icon: Flame, title: "爆発ヒートマップ", desc: "選択馬の中で“爆発に効く馬”を可視化。", color: "#ef4444" },
+                { icon: Activity, title: "1頭飛んだら？", desc: "人気馬が飛んだ時の払戻レンジを概算。", color: "#f97316" },
+                { icon: BarChart3, title: "結果 & バックテスト", desc: "過去結果と戦略の相性を振り返り。", color: "#22c55e" },
+                { icon: Shield, title: "あなたの傾向", desc: "保存データから“絞る/広げる”傾向と改善ヒント。", color: "#a78bfa" },
+              ].map((c, i) => (
+                <div key={i} className="rounded-2xl sm:rounded-[2rem] border border-white/10 bg-white/[0.02] p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="h-11 w-11 rounded-xl border border-white/10 flex items-center justify-center" style={{ background: `${c.color}12` }}>
+                      <c.icon className="h-6 w-6" style={{ color: c.color }} strokeWidth={1.5} />
+                    </div>
+                    <p className="text-base font-black">{c.title}</p>
+                  </div>
+                  <p className="mt-3 text-sm text-white/50 leading-relaxed">{c.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
       </div>{/* max-w wrapper end */}
 
       {/* ━━━ CTA ━━━ */}
@@ -464,7 +500,7 @@ export default function Home() {
               一緒に戦略を立てませんか。
             </span>
           </h2>
-          <p className="text-lg text-white/50">完全無料。アカウント不要。今すぐAIに相談できる。</p>
+          <p className="text-lg text-white/50">招待コードでログインして、今週の買い目を設計しましょう。</p>
           <Link
             href="/login"
             className="inline-flex items-center justify-center gap-2 rounded-full px-10 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
@@ -474,7 +510,7 @@ export default function Home() {
             }}
           >
             <Sparkles className="h-5 w-5" />
-            無料で始める
+            招待コードでログイン
           </Link>
         </div>
       </section>
@@ -488,8 +524,8 @@ export default function Home() {
             <span className="text-xs text-white/30">WIN5特化AI戦略ツール</span>
           </div>
           <div className="flex gap-8 text-xs text-white/30">
-            <Link href="/login" className="hover:text-white transition">AIチャット</Link>
-            <Link href="/login" className="hover:text-white transition">ダッシュボード</Link>
+            <Link href="/chat" className="hover:text-white transition">AIチャット</Link>
+            <Link href="/dashboard" className="hover:text-white transition">ダッシュボード</Link>
           </div>
           <p className="text-xs text-white/20">&copy; 2026 TornadoAI</p>
         </div>
