@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import AuthGuard from '@/components/auth/AuthGuard'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
+import { useWin5Store } from '@/store/win5Store'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -25,6 +26,8 @@ export default function ChatPage() {
   const [toolStatus, setToolStatus] = useState('')
   const [quickReplies, setQuickReplies] = useState<QuickReply[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const budget = useWin5Store(s => s.budget)
+  const targetPayout = useWin5Store(s => s.targetPayout)
 
   useEffect(() => {
     fetch(`${API}/api/chat/sessions`, { method: 'POST' })
@@ -128,9 +131,9 @@ export default function ChatPage() {
             <div className="flex flex-wrap gap-2 justify-center">
               {[
                 { label: '🌪️ 今週のWIN5', text: '今週のWIN5は？' },
-                { label: '🎯 買い目出して', text: '予算5000円で買い目出して' },
+                { label: '🎯 買い目出して', text: `予算${budget}円で買い目出して` },
                 { label: '📊 3シナリオ', text: '3シナリオ見せて' },
-                { label: '💰 500万狙い', text: '500万狙いたいです' },
+                { label: '💰 目標で作って', text: `予算${budget}円で${Math.round(targetPayout / 10000)}万狙いたいです` },
               ].map(q => (
                 <button
                   key={q.text}

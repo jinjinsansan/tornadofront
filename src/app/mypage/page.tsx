@@ -66,6 +66,15 @@ export default function MyPage() {
             </Link>
           </div>
 
+          <Link
+            href="/history"
+            className="block rounded-2xl border border-white/5 p-5 hover:border-white/10 transition"
+            style={{ background: 'linear-gradient(180deg, #111827, #0f172a)' }}
+          >
+            <p className="text-sm font-bold">💾 保存した買い目</p>
+            <p className="text-xs text-white/40 mt-1">保存したパターンを比較・確認できます</p>
+          </Link>
+
           {/* Features */}
           <div className="rounded-2xl border border-white/5 overflow-hidden" style={{ background: 'linear-gradient(180deg, #111827, #0f172a)' }}>
             <div className="px-5 pt-5 pb-3">
