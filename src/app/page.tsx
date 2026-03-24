@@ -85,8 +85,8 @@ export default function Home() {
             <span className="text-2xl">🌪️</span>
             <span className="text-lg font-black tracking-wide">TornadoAI</span>
           </div>
-          <nav className="flex items-center gap-5">
-            <Link href="/dashboard" className="text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
+          <nav className="flex items-center gap-3 sm:gap-5">
+            <Link href="/dashboard" className="hidden sm:inline text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
             <Link
               href="/chat"
               className="text-sm px-5 py-2.5 bg-gradient-to-r from-tornado-accent to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
@@ -202,14 +202,14 @@ export default function Home() {
       <div className="mx-auto max-w-[1200px]">
 
         {/* ━━━ Feature 01: 波乱度ランク ━━━ */}
-        <section className="relative py-28 sm:py-36" style={{ background: "#080c18" }}>
+        <section className="relative py-16 sm:py-28 lg:py-36" style={{ background: "#080c18" }}>
           <div className="absolute left-1/2 top-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.04] blur-[150px]" style={{ background: features[0].color }} />
           <div className="mx-auto max-w-6xl px-6">
             <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
               {/* Text */}
-              <div className="relative overflow-hidden rounded-[2rem] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent p-8 backdrop-blur-sm md:p-12">
+              <div className="relative overflow-hidden rounded-2xl sm:rounded-[2rem] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent p-5 sm:p-8 backdrop-blur-sm md:p-12">
                 <div className="mb-6 flex items-center gap-3">
-                  <Activity className="h-12 w-12" style={{ color: features[0].color }} strokeWidth={1.5} />
+                  <Activity className="h-8 w-8 sm:h-12 sm:w-12" style={{ color: features[0].color }} strokeWidth={1.5} />
                   <span className="text-sm font-bold tracking-widest uppercase" style={{ color: features[0].color }}>Feature 01</span>
                 </div>
                 <h2 className="mb-8 text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
@@ -224,19 +224,19 @@ export default function Home() {
               </div>
 
               {/* Visual: Volatility bars */}
-              <div className="relative flex flex-col gap-3 rounded-[2rem] border border-white/10 bg-[#0a0e1a] p-8">
+              <div className="relative flex flex-col gap-2 sm:gap-3 rounded-2xl sm:rounded-[2rem] border border-white/10 bg-[#0a0e1a] p-4 sm:p-8">
                 <p className="mb-2 text-xs font-bold tracking-[0.25em] text-white/30 uppercase">今週のWIN5 波乱度</p>
                 {features[0].visual?.map((race, i) => (
-                  <div key={i} className="flex items-center gap-4 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
-                    <span className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style={{ background: `${race.color}15`, color: race.color }}>
+                  <div key={i} className="flex items-center gap-2 sm:gap-4 rounded-lg sm:rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 sm:px-4 sm:py-3">
+                    <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-md sm:rounded-lg flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0" style={{ background: `${race.color}15`, color: race.color }}>
                       R{i + 1}
                     </span>
-                    <span className="flex-1 text-sm font-medium text-white/80">{race.label}</span>
-                    <div className="flex gap-0.5">
+                    <span className="flex-1 text-xs sm:text-sm font-medium text-white/80 truncate">{race.label}</span>
+                    <div className="flex gap-0.5 shrink-0">
                       {Array.from({ length: 5 }).map((_, j) => (
                         <div
                           key={j}
-                          className="w-5 h-5 rounded-sm"
+                          className="w-3.5 h-3.5 sm:w-5 sm:h-5 rounded-sm"
                           style={{
                             background: j < race.stars ? race.color : "rgba(255,255,255,0.05)",
                             boxShadow: j < race.stars ? `0 0 8px ${race.color}40` : "none",
@@ -257,12 +257,12 @@ export default function Home() {
         </section>
 
         {/* ━━━ Feature 02: 買い目自動生成 ━━━ */}
-        <section className="relative py-28 sm:py-36" style={{ background: "#060a16" }}>
+        <section className="relative py-16 sm:py-28 lg:py-36" style={{ background: "#060a16" }}>
           <div className="absolute left-1/2 top-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.04] blur-[150px]" style={{ background: features[1].color }} />
           <div className="mx-auto max-w-6xl px-6">
             <div className="mx-auto max-w-3xl text-center">
               <div className="mb-6 flex items-center justify-center gap-3">
-                <Target className="h-12 w-12" style={{ color: features[1].color }} strokeWidth={1.5} />
+                <Target className="h-8 w-8 sm:h-12 sm:w-12" style={{ color: features[1].color }} strokeWidth={1.5} />
                 <span className="text-sm font-bold tracking-widest uppercase" style={{ color: features[1].color }}>Feature 02</span>
               </div>
               <h2 className="mb-8 text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
@@ -277,7 +277,7 @@ export default function Home() {
 
             {/* Visual: Ticket generation mock */}
             <div className="mx-auto mt-14 max-w-xl">
-              <div className="rounded-[2rem] border-2 p-8" style={{ borderColor: `${features[1].color}30`, background: `${features[1].color}08` }}>
+              <div className="rounded-2xl sm:rounded-[2rem] border-2 p-5 sm:p-8" style={{ borderColor: `${features[1].color}30`, background: `${features[1].color}08` }}>
                 <div className="flex items-center gap-3 mb-6">
                   <DollarSign className="h-8 w-8" style={{ color: features[1].color }} />
                   <div>
@@ -285,17 +285,17 @@ export default function Home() {
                     <p className="font-bold text-white/90">予算 ¥5,000 → 目標 ¥5,000,000</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-5 gap-2 mb-4">
+                <div className="grid grid-cols-5 gap-1.5 sm:gap-2 mb-4">
                   {["1頭", "2頭", "3頭", "1頭", "2頭"].map((n, i) => (
-                    <div key={i} className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-center">
-                      <p className="text-xs text-white/40">R{i + 1}</p>
-                      <p className="text-lg font-black" style={{ color: features[1].color }}>{n}</p>
+                    <div key={i} className="rounded-lg sm:rounded-xl border border-white/10 bg-white/[0.03] p-2 sm:p-3 text-center">
+                      <p className="text-[10px] sm:text-xs text-white/40">R{i + 1}</p>
+                      <p className="text-base sm:text-lg font-black" style={{ color: features[1].color }}>{n}</p>
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                  <span className="text-sm text-white/50">12点 / ¥1,200</span>
-                  <span className="font-black text-lg" style={{ color: "#fbbf24" }}>最高想定 ¥12,400,000</span>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 pt-4 border-t border-white/10">
+                  <span className="text-xs sm:text-sm text-white/50">12点 / ¥1,200</span>
+                  <span className="font-black text-sm sm:text-lg" style={{ color: "#fbbf24" }}>最高想定 ¥12,400,000</span>
                 </div>
               </div>
             </div>
@@ -303,12 +303,12 @@ export default function Home() {
         </section>
 
         {/* ━━━ Feature 03: 3シナリオ ━━━ */}
-        <section className="relative py-28 sm:py-36" style={{ background: "#080c18" }}>
+        <section className="relative py-16 sm:py-28 lg:py-36" style={{ background: "#080c18" }}>
           <div className="absolute left-1/2 top-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.04] blur-[150px]" style={{ background: features[2].color }} />
           <div className="mx-auto max-w-6xl px-6">
             <div className="mx-auto mb-16 max-w-3xl text-center">
               <div className="mb-6 flex items-center justify-center gap-3">
-                <Layers className="h-12 w-12" style={{ color: features[2].color }} strokeWidth={1.5} />
+                <Layers className="h-8 w-8 sm:h-12 sm:w-12" style={{ color: features[2].color }} strokeWidth={1.5} />
                 <span className="text-sm font-bold tracking-widest uppercase" style={{ color: features[2].color }}>Feature 03</span>
               </div>
               <h2 className="mb-8 text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
@@ -329,7 +329,7 @@ export default function Home() {
                 return (
                   <div
                     key={i}
-                    className="group relative overflow-hidden rounded-[2rem] border-2 p-7 transition-all duration-300 hover:scale-[1.03]"
+                    className="group relative overflow-hidden rounded-2xl sm:rounded-[2rem] border-2 p-5 sm:p-7 transition-all duration-300 hover:scale-[1.03]"
                     style={{
                       borderColor: `${c}40`,
                       background: `linear-gradient(135deg, ${c}0a, transparent)`,
@@ -360,14 +360,14 @@ export default function Home() {
         </section>
 
         {/* ━━━ Feature 04: AIチャット ━━━ */}
-        <section className="relative py-28 sm:py-36" style={{ background: "#060a16" }}>
+        <section className="relative py-16 sm:py-28 lg:py-36" style={{ background: "#060a16" }}>
           <div className="absolute left-1/2 top-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.04] blur-[150px]" style={{ background: features[3].color }} />
           <div className="mx-auto max-w-6xl px-6">
             <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
               {/* Text */}
-              <div className="relative overflow-hidden rounded-[2rem] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent p-8 backdrop-blur-sm md:p-12">
+              <div className="relative overflow-hidden rounded-2xl sm:rounded-[2rem] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent p-5 sm:p-8 backdrop-blur-sm md:p-12">
                 <div className="mb-6 flex items-center gap-3">
-                  <MessageCircle className="h-12 w-12" style={{ color: features[3].color }} strokeWidth={1.5} />
+                  <MessageCircle className="h-8 w-8 sm:h-12 sm:w-12" style={{ color: features[3].color }} strokeWidth={1.5} />
                   <span className="text-sm font-bold tracking-widest uppercase" style={{ color: features[3].color }}>Feature 04</span>
                 </div>
                 <h2 className="mb-8 text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
@@ -382,7 +382,7 @@ export default function Home() {
               </div>
 
               {/* Chat mock */}
-              <div className="relative rounded-[2rem] border border-white/10 bg-[#0a0e1a] p-6 sm:p-8">
+              <div className="relative rounded-2xl sm:rounded-[2rem] border border-white/10 bg-[#0a0e1a] p-6 sm:p-8">
                 <div className="flex items-center gap-2 mb-6 pb-4 border-b border-white/5">
                   <span className="text-xl">🌪️</span>
                   <span className="font-bold text-sm">TornadoAI</span>
@@ -407,7 +407,7 @@ export default function Home() {
                   <div className="flex-1 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-white/30">
                     WIN5について何でも聞いてください...
                   </div>
-                  <div className="w-16 rounded-xl bg-gradient-to-r from-tornado-accent to-tornado-orange flex items-center justify-center text-sm font-bold">
+                  <div className="w-14 sm:w-16 rounded-xl bg-gradient-to-r from-tornado-accent to-tornado-orange flex items-center justify-center text-xs sm:text-sm font-bold shrink-0">
                     送信
                   </div>
                 </div>
@@ -417,7 +417,7 @@ export default function Home() {
         </section>
 
         {/* ━━━ How It Works ━━━ */}
-        <section className="relative py-28 sm:py-36" style={{ background: "#080c18" }}>
+        <section className="relative py-16 sm:py-28 lg:py-36" style={{ background: "#080c18" }}>
           <div className="mx-auto max-w-6xl px-6">
             <div className="mx-auto mb-16 max-w-3xl text-center">
               <span className="mb-4 block text-sm font-bold tracking-widest text-tornado-gold uppercase">How It Works</span>
@@ -433,14 +433,14 @@ export default function Home() {
               ].map((item) => (
                 <div key={item.step} className="text-center">
                   <div
-                    className="w-20 h-20 mx-auto mb-6 rounded-2xl border-2 flex items-center justify-center"
+                    className="w-14 h-14 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 rounded-xl sm:rounded-2xl border-2 flex items-center justify-center"
                     style={{
                       borderColor: `${item.color}50`,
                       background: `${item.color}15`,
                       boxShadow: `0 0 30px ${item.color}20`,
                     }}
                   >
-                    <item.icon className="h-9 w-9" style={{ color: item.color, filter: `drop-shadow(0 0 8px ${item.color})` }} strokeWidth={1.5} />
+                    <item.icon className="h-6 w-6 sm:h-9 sm:w-9" style={{ color: item.color, filter: `drop-shadow(0 0 8px ${item.color})` }} strokeWidth={1.5} />
                   </div>
                   <p className="text-xs font-bold tracking-widest mb-3" style={{ color: item.color }}>STEP {item.step}</p>
                   <h3 className="text-xl font-black mb-3">{item.title}</h3>
@@ -454,7 +454,7 @@ export default function Home() {
       </div>{/* max-w wrapper end */}
 
       {/* ━━━ CTA ━━━ */}
-      <section className="relative overflow-hidden py-28 sm:py-36">
+      <section className="relative overflow-hidden py-16 sm:py-28 lg:py-36">
         <div className="absolute inset-0 bg-gradient-hero" />
         <div className="absolute left-1/2 top-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-tornado-accent opacity-[0.06] blur-[150px]" />
         <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-8 px-6 text-center">
