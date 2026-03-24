@@ -1,5 +1,19 @@
 import type { Metadata, Viewport } from 'next'
+import { Noto_Sans_JP, Inter } from 'next/font/google'
 import './globals.css'
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700', '900'],
+  display: 'swap',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'トルネードAI | WIN5特化AI予想',
@@ -18,7 +32,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <body className={`${notoSansJP.className} ${inter.variable}`}>{children}</body>
     </html>
   )
 }

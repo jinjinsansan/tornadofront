@@ -10,7 +10,7 @@ html {
 body {
   background: #060b18;
   color: #e2e8f0;
-  font-family: -apple-system, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+  font-family: 'Noto Sans JP', sans-serif;
   min-height: 100vh;
   min-height: -webkit-fill-available;
   /* iOS safe area padding */
