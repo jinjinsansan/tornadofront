@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { motion, AnimatePresence } from 'framer-motion'
 import AuthGuard from '@/components/auth/AuthGuard'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 import { useWin5Store } from '@/store/win5Store'
+import { ChevronDown, Save, RefreshCw, FlaskConical, Users, Flame, Zap, Target, TrendingUp, Shield, Swords, BarChart3 } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -85,8 +87,51 @@ type HeatmapResponse = {
 
 const STARS = ['', '★', '★★', '★★★', '★★★★', '★★★★★']
 const VOL_COLORS = ['', 'text-blue-400', 'text-cyan-400', 'text-yellow-400', 'text-orange-400', 'text-red-500']
-const VOL_BG = ['', 'border-blue-800', 'border-cyan-800', 'border-yellow-800', 'border-orange-800', 'border-red-800']
+const VOL_BORDER = ['', 'border-blue-500/30', 'border-cyan-500/30', 'border-yellow-500/30', 'border-orange-500/30', 'border-red-500/30']
+const VOL_GLOW = ['', 'shadow-blue-500/10', 'shadow-cyan-500/10', 'shadow-yellow-500/10', 'shadow-orange-500/10', 'shadow-red-500/10']
 const WIN5_PRICE = 100
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.4, ease: 'easeOut' } }),
+}
+
+function SectionLabel({ icon: Icon, label }: { icon: any; label: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-3">
+      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-tornado-accent/20 to-tornado-orange/10 flex items-center justify-center">
+        <Icon size={16} className="text-tornado-accent" />
+      </div>
+      <h2 className="text-base font-bold tracking-tight">{label}</h2>
+      <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
+    </div>
+  )
+}
+
+function GlassCard({ children, className = '', ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={`relative rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.04] to-white/[0.01] backdrop-blur-sm shadow-lg shadow-black/20 ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  )
+}
+
+function PremiumButton({ children, variant = 'primary', className = '', ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost' }) {
+  const base = 'relative font-bold rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed'
+  const variants = {
+    primary: 'bg-gradient-to-r from-tornado-accent to-tornado-orange text-white shadow-lg shadow-tornado-accent/20 hover:shadow-tornado-accent/40 hover:brightness-110 active:scale-[0.98]',
+    secondary: 'bg-white/[0.06] border border-white/10 text-white hover:bg-white/[0.10] hover:border-white/20 active:scale-[0.98]',
+    ghost: 'text-tornado-muted hover:text-white hover:bg-white/[0.04] active:scale-[0.98]',
+  }
+  return (
+    <button className={`${base} ${variants[variant]} ${className}`} {...props}>
+      {children}
+    </button>
+  )
+}
 
 export default function DashboardPage() {
   const [races, setRaces] = useState<Race[]>([])
@@ -163,7 +208,6 @@ export default function DashboardPage() {
     const total = counts.reduce((p, c) => p * (c || 0), 1)
     const investment = total * WIN5_PRICE
 
-    // Rough estimate like backend: product(minOdds/maxOdds) * 100 * 0.7
     let minOddsProduct = 1
     let maxOddsProduct = 1
 
@@ -356,7 +400,9 @@ export default function DashboardPage() {
   }
 
   const totalVolatility = races.reduce((sum, r) => sum + r.volatility_rank, 0)
-  const overallDesc = totalVolatility >= 20 ? '🔴 大荒れ週' : totalVolatility >= 15 ? '🟠 荒れ模様' : totalVolatility >= 12 ? '🟡 やや混戦' : '🔵 やや堅め'
+  const overallLabel = totalVolatility >= 20 ? '大荒れ週' : totalVolatility >= 15 ? '荒れ模様' : totalVolatility >= 12 ? 'やや混戦' : 'やや堅め'
+  const overallColor = totalVolatility >= 20 ? 'text-red-400' : totalVolatility >= 15 ? 'text-orange-400' : totalVolatility >= 12 ? 'text-yellow-400' : 'text-blue-400'
+  const overallGradient = totalVolatility >= 20 ? 'from-red-500/20 to-red-900/5' : totalVolatility >= 15 ? 'from-orange-500/20 to-orange-900/5' : totalVolatility >= 12 ? 'from-yellow-500/20 to-yellow-900/5' : 'from-blue-500/20 to-blue-900/5'
 
   const live = calcFromTickets(customTickets)
 
@@ -440,202 +486,343 @@ export default function DashboardPage() {
 
   return (
     <AuthGuard>
-    <div className="min-h-screen max-w-2xl mx-auto pb-20">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Link href="/"><Image src="/brand/logo.png" alt="TornadoAI" width={32} height={32} className="rounded-lg" /></Link>
-          <h1 className="text-lg font-bold">WIN5 ダッシュボード</h1>
+    <div className="min-h-screen max-w-2xl mx-auto pb-24">
+      {/* Premium Header */}
+      <header className="sticky top-0 z-30 border-b border-white/[0.06]" style={{ background: 'linear-gradient(180deg, rgba(6,11,24,0.95) 0%, rgba(6,11,24,0.85) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+        <div className="px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/">
+              <Image src="/brand/logo.png" alt="TornadoAI" width={34} height={34} className="rounded-xl" />
+            </Link>
+            <div>
+              <h1 className="text-base font-bold tracking-tight">WIN5 Dashboard</h1>
+              <p className="text-[11px] text-tornado-muted -mt-0.5">AI-Powered Analysis</p>
+            </div>
+          </div>
+          <HamburgerMenu />
         </div>
-        <HamburgerMenu />
       </header>
 
       {loading ? (
-        <div className="text-center mt-20 text-tornado-muted animate-pulse">🌪️ データ取得中...</div>
+        <div className="flex flex-col items-center justify-center mt-32 gap-4">
+          <div className="tornado-spinner" />
+          <p className="text-sm text-tornado-muted">データを読み込んでいます...</p>
+        </div>
       ) : races.length === 0 ? (
-        <div className="text-center mt-20 text-tornado-muted">
-          <p className="text-xl mb-4">レースデータなし</p>
-          <p className="text-sm">WIN5対象レースは毎週日曜です</p>
+        <div className="text-center mt-32 px-6">
+          <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
+            <Target size={28} className="text-tornado-muted" />
+          </div>
+          <p className="text-lg font-bold mb-2">レースデータなし</p>
+          <p className="text-sm text-tornado-muted">WIN5対象レースは毎週日曜に更新されます</p>
         </div>
       ) : (
-        <div className="p-4 space-y-4">
-          {/* Overall */}
-          <div className="bg-tornado-card border border-tornado-border rounded-xl p-4 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-tornado-muted">今週のWIN5</p>
-              <p className="text-lg font-bold">{overallDesc}</p>
-              {carryover > 0 && (
-                <p className="text-xs mt-1" style={{ color: '#fbbf24' }}>
-                  キャリーオーバー: ¥{carryover.toLocaleString()}
-                </p>
-              )}
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-tornado-muted">総合波乱度</p>
-              <p className="text-2xl font-bold text-tornado-accent">{totalVolatility}/25</p>
-            </div>
-          </div>
-
-          {/* How to use */}
-          <div className="bg-tornado-card border border-tornado-border rounded-xl p-4 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-bold">🗺️ 使い方（おすすめ順）</p>
-              <Link href="/chat" className="text-xs text-tornado-accent underline">
-                AIに相談 →
-              </Link>
-            </div>
-            <ol className="list-decimal pl-5 text-xs text-tornado-muted space-y-1">
-              <li>下の「🌪️ 買い目生成」でベースを作る（予算/目標/リスク）。</li>
-              <li>各レースを開いて、馬をタップして増減（点数/投資は自動計算）。</li>
-              <li>「💾 保存」で当日用に残す（履歴で比較できます）。</li>
-              <li>「🧪 1頭飛んだら？」「👥 被り度」「🔥 爆発ヒートマップ」で仕上げ。</li>
-            </ol>
-            {Object.keys(customTickets).length === 0 && (
-              <p className="text-xs text-tornado-muted">
-                まずは「🌪️ 買い目生成」を押すと、すぐに買い目が入ります。
-              </p>
-            )}
-          </div>
-
-          {/* Strategy / Survival / Explosion */}
-          {Object.keys(customTickets).length > 0 && (
-            <div className="bg-tornado-card border border-tornado-border rounded-xl p-4 space-y-2">
-              <p className="text-sm font-bold">🧭 戦略サマリー</p>
-              <div className="text-xs text-tornado-muted space-y-1">
-                <p>
-                  生存率（目安）: <span className="text-white">{(survival.overall * 100).toFixed(1)}%</span>
-                </p>
-                <p className="flex flex-wrap gap-x-3 gap-y-1">
-                  {survival.per.map(x => (
-                    <span key={x.race_order}>
-                      R{x.race_order}: {(x.p * 100).toFixed(1)}% → 累計 {(x.cum * 100).toFixed(1)}%
-                    </span>
-                  ))}
-                </p>
-                {explosion && (
-                  <p>
-                    爆発ルート（目安）: <span className="text-white">〜¥{explosion.payout.toLocaleString()}</span>
-                    <span className="ml-2">
-                      {explosion.picks.map(p => `R${p.race_order}:${p.horse_number}`).join(' / ')}
-                    </span>
-                  </p>
-                )}
-                {carryover > 0 && (
-                  <p style={{ color: '#fbbf24' }}>
-                    キャリーあり：点数を広げても期待値が上がりやすい週です（最新で更新→再生成推奨）。
-                  </p>
-                )}
-                {survival.per.some(x => x.p < 0.25) && (
-                  <p className="text-red-400">
-                    ⚠️ どこかのレースで生存率が低めです。波乱度が高いレースは頭数を広げるのがおすすめです。
-                  </p>
-                )}
-                {perRaceDiagnostics.some(d => d.selectedCount === 0) && (
-                  <p className="text-red-400">
-                    ⚠️ 未選択のレースがあります（このままだと点数が0になります）。
-                  </p>
-                )}
-                {live.investment > budget && (
-                  <p className="text-red-400">
-                    ⚠️ 予算超過です（投資 ¥{live.investment.toLocaleString()} / 予算 ¥{budget.toLocaleString()}）。
-                  </p>
-                )}
-                {perRaceDiagnostics.some(d => d.valueAvg > 0 && d.valueAvg < 0.8) && (
-                  <p className="text-red-400">
-                    ⚠️ 期待値が低めの選択が含まれています（目安: value_score平均が低いレースあり）。
-                  </p>
-                )}
-              </div>
-
-              {explosionRoutes.length > 0 && (
-                <div className="mt-2 rounded-xl border border-white/10 bg-white/[0.02] p-3">
-                  <p className="text-sm font-bold mb-2">✨ 爆発ルートTop5（目安）</p>
-                  <div className="space-y-1 text-[11px] text-tornado-muted">
-                    {explosionRoutes.map((r, idx) => (
-                      <div key={idx} className="flex justify-between gap-2">
-                        <span>
-                          #{idx + 1} {r.picks.map(p => `R${p.race_order}:${p.horse_number}`).join(' / ')}
-                        </span>
-                        <span className="text-white">〜¥{r.payout.toLocaleString()}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* 5 Races */}
-          {races.map(race => (
-            <div
-              key={race.race_order}
-              className={`bg-tornado-card border ${VOL_BG[race.volatility_rank] || 'border-tornado-border'} rounded-xl overflow-hidden`}
-            >
-              <button
-                onClick={() => setExpandedRace(expandedRace === race.race_order ? null : race.race_order)}
-                className="w-full p-4 flex items-center gap-3 text-left"
-              >
-                <div className="bg-tornado-bg rounded-lg w-10 h-10 flex items-center justify-center font-bold text-sm">
-                  R{race.race_order}
-                </div>
-                <div className="flex-1">
-                  <p className="font-bold">{race.venue}{race.race_number}R {race.race_name}</p>
-                  <p className="text-sm text-tornado-muted">{race.distance} / {race.field_size}頭</p>
+        <motion.div
+          className="p-4 space-y-4"
+          initial="hidden"
+          animate="visible"
+          variants={{ visible: { transition: { staggerChildren: 0.06 } } }}
+        >
+          {/* Overall Status Card */}
+          <motion.div variants={fadeUp} custom={0}>
+            <GlassCard className={`p-5 bg-gradient-to-br ${overallGradient}`}>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs text-tornado-muted font-medium uppercase tracking-wider">This Week&apos;s WIN5</p>
+                  <p className={`text-xl font-bold ${overallColor}`}>{overallLabel}</p>
+                  {carryover > 0 && (
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-tornado-gold animate-pulse" />
+                      <p className="text-xs text-tornado-gold font-medium">
+                        Carryover: ¥{carryover.toLocaleString()}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <div className="text-right">
-                  <p className={`text-sm font-bold ${VOL_COLORS[race.volatility_rank]}`}>
-                    {STARS[race.volatility_rank]}
-                  </p>
-                  <p className="text-xs text-tornado-muted">{race.volatility_desc || `波乱度${race.volatility_rank}`}</p>
+                  <p className="text-[11px] text-tornado-muted font-medium uppercase tracking-wider">Volatility</p>
+                  <p className="text-3xl font-black gradient-text">{totalVolatility}</p>
+                  <p className="text-[11px] text-tornado-muted">/25</p>
                 </div>
-              </button>
+              </div>
+            </GlassCard>
+          </motion.div>
 
-              {/* Expanded: Horse list */}
-              {expandedRace === race.race_order && race.horses.length > 0 && (
-                <div className="border-t border-tornado-border px-4 pb-4">
-                  <table className="w-full text-sm mt-2">
-                    <thead>
-                      <tr className="text-tornado-muted text-xs">
-                        <th className="text-left py-1">番</th>
-                        <th className="text-left">馬名</th>
-                        <th className="text-right">オッズ</th>
-                        <th className="text-right">AI勝率</th>
-                        <th className="text-right">期待値</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {race.horses
-                        .sort((a, b) => b.ai_win_prob - a.ai_win_prob)
-                        .map(h => (
-                        <tr
-                          key={h.horse_number}
-                          className="border-t border-tornado-border/30 cursor-pointer hover:bg-white/[0.02]"
-                          onClick={() => toggleHorse(race.race_order, h.horse_number)}
-                        >
-                          <td className="py-1.5 font-bold">{h.horse_number}</td>
-                          <td>{h.horse_name}</td>
-                          <td className="text-right text-tornado-muted">{h.odds > 0 ? `${h.odds}倍` : '-'}</td>
-                          <td className="text-right">{(h.ai_win_prob * 100).toFixed(1)}%</td>
-                          <td className={`text-right font-bold ${h.value_score >= 1.5 ? 'text-green-400' : h.value_score <= 0.7 ? 'text-red-400' : ''}`}>
-                            {h.value_score.toFixed(2)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <p className="text-[11px] text-tornado-muted mt-2">
-                    選択中: {(customTickets[`R${race.race_order}`] || []).join(', ') || 'なし'}
-                  </p>
+          {/* Quick Guide */}
+          <motion.div variants={fadeUp} custom={1}>
+            <GlassCard className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-md bg-white/[0.06] flex items-center justify-center">
+                    <Zap size={13} className="text-tornado-gold" />
+                  </div>
+                  <p className="text-sm font-bold">クイックガイド</p>
                 </div>
+                <Link href="/chat" className="text-xs text-tornado-accent hover:text-tornado-orange transition-colors font-medium">
+                  AIに相談 →
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { step: '1', text: '買い目を生成', sub: '予算/目標/リスク設定' },
+                  { step: '2', text: '馬をタップで調整', sub: '点数は自動計算' },
+                  { step: '3', text: '保存して比較', sub: '履歴で振り返り' },
+                  { step: '4', text: '分析で仕上げ', sub: 'シミュ/被り/ヒートマップ' },
+                ].map(item => (
+                  <div key={item.step} className="flex items-start gap-2 rounded-xl bg-white/[0.02] border border-white/[0.04] p-2.5">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-tornado-accent to-tornado-orange text-[10px] font-bold flex items-center justify-center text-white">
+                      {item.step}
+                    </span>
+                    <div>
+                      <p className="text-xs font-medium leading-tight">{item.text}</p>
+                      <p className="text-[10px] text-tornado-muted leading-tight">{item.sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {Object.keys(customTickets).length === 0 && (
+                <p className="text-[11px] text-tornado-muted mt-3 text-center">
+                  下の「買い目生成」を押して始めましょう
+                </p>
               )}
-            </div>
-          ))}
+            </GlassCard>
+          </motion.div>
 
-          {/* Budget / Target / Risk + Generate */}
-          <div className="bg-tornado-card border border-tornado-border rounded-xl p-4 space-y-4">
-            <div>
-              <label className="text-sm text-tornado-muted">予算</label>
-              <div className="flex items-center gap-3 mt-1">
+          {/* Strategy Summary */}
+          {Object.keys(customTickets).length > 0 && (
+            <motion.div variants={fadeUp} custom={2}>
+              <SectionLabel icon={TrendingUp} label="戦略サマリー" />
+              <GlassCard className="p-4 space-y-3">
+                {/* Survival Rate */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs text-tornado-muted font-medium">生存率（目安）</p>
+                    <p className="text-sm font-bold">{(survival.overall * 100).toFixed(1)}%</p>
+                  </div>
+                  <div className="flex gap-1">
+                    {survival.per.map(x => {
+                      const pct = Math.min(x.p * 100, 100)
+                      const color = pct >= 60 ? 'bg-emerald-500' : pct >= 35 ? 'bg-yellow-500' : 'bg-red-500'
+                      return (
+                        <div key={x.race_order} className="flex-1">
+                          <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                            <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
+                          </div>
+                          <p className="text-[9px] text-tornado-muted text-center mt-0.5">R{x.race_order}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Explosion Route */}
+                {explosion && (
+                  <div className="rounded-xl bg-gradient-to-r from-tornado-accent/10 to-transparent border border-tornado-accent/10 p-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-medium text-tornado-muted">爆発ルート（目安）</p>
+                      <p className="text-sm font-bold text-tornado-accent">~¥{explosion.payout.toLocaleString()}</p>
+                    </div>
+                    <div className="flex gap-1 mt-1.5">
+                      {explosion.picks.map((p: any) => (
+                        <span key={p.race_order} className="text-[10px] bg-white/[0.06] rounded-md px-1.5 py-0.5 text-tornado-muted">
+                          R{p.race_order}:{p.horse_number}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Warnings */}
+                <div className="space-y-1.5">
+                  {carryover > 0 && (
+                    <div className="flex items-start gap-2 text-[11px] text-tornado-gold">
+                      <span className="mt-0.5">●</span>
+                      <span>キャリーあり：点数を広げても期待値が上がりやすい週です。</span>
+                    </div>
+                  )}
+                  {survival.per.some(x => x.p < 0.25) && (
+                    <div className="flex items-start gap-2 text-[11px] text-red-400">
+                      <span className="mt-0.5">●</span>
+                      <span>一部レースで生存率が低めです。波乱度の高いレースは頭数を広げましょう。</span>
+                    </div>
+                  )}
+                  {perRaceDiagnostics.some(d => d.selectedCount === 0) && (
+                    <div className="flex items-start gap-2 text-[11px] text-red-400">
+                      <span className="mt-0.5">●</span>
+                      <span>未選択のレースがあります（点数が0になります）。</span>
+                    </div>
+                  )}
+                  {live.investment > budget && (
+                    <div className="flex items-start gap-2 text-[11px] text-red-400">
+                      <span className="mt-0.5">●</span>
+                      <span>予算超過（投資 ¥{live.investment.toLocaleString()} / 予算 ¥{budget.toLocaleString()}）</span>
+                    </div>
+                  )}
+                  {perRaceDiagnostics.some(d => d.valueAvg > 0 && d.valueAvg < 0.8) && (
+                    <div className="flex items-start gap-2 text-[11px] text-yellow-400">
+                      <span className="mt-0.5">●</span>
+                      <span>期待値が低めの選択が含まれています。</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Explosion Routes Top 5 */}
+                {explosionRoutes.length > 0 && (
+                  <div className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-3">
+                    <p className="text-xs font-bold mb-2 flex items-center gap-1.5">
+                      <Zap size={12} className="text-tornado-gold" />
+                      爆発ルート Top 5
+                    </p>
+                    <div className="space-y-1.5">
+                      {explosionRoutes.map((r, idx) => (
+                        <div key={idx} className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-tornado-muted w-4">#{idx + 1}</span>
+                            <div className="flex gap-0.5">
+                              {r.picks.map(p => (
+                                <span key={p.race_order} className="text-[10px] bg-white/[0.04] rounded px-1 py-0.5 text-tornado-muted">
+                                  R{p.race_order}:{p.horse_number}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <span className="text-xs font-bold text-white">~¥{r.payout.toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </GlassCard>
+            </motion.div>
+          )}
+
+          {/* Race Cards */}
+          <motion.div variants={fadeUp} custom={3}>
+            <SectionLabel icon={Target} label="レース分析" />
+          </motion.div>
+          {races.map((race, idx) => {
+            const isExpanded = expandedRace === race.race_order
+            const selectedHorses = customTickets[`R${race.race_order}`] || []
+            return (
+              <motion.div key={race.race_order} variants={fadeUp} custom={4 + idx}>
+                <GlassCard className={`overflow-hidden ${VOL_BORDER[race.volatility_rank] || 'border-white/[0.06]'} shadow-md ${VOL_GLOW[race.volatility_rank] || ''}`}>
+                  <button
+                    onClick={() => setExpandedRace(isExpanded ? null : race.race_order)}
+                    className="w-full p-4 flex items-center gap-3 text-left hover:bg-white/[0.02] transition-colors"
+                  >
+                    <div className="relative">
+                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-white/[0.08] to-white/[0.02] border border-white/[0.08] flex items-center justify-center">
+                        <span className="text-sm font-black">R{race.race_order}</span>
+                      </div>
+                      {selectedHorses.length > 0 && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-tornado-accent text-[9px] font-bold flex items-center justify-center">
+                          {selectedHorses.length}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate">{race.venue}{race.race_number}R {race.race_name}</p>
+                      <p className="text-xs text-tornado-muted">{race.distance} / {race.field_size}頭</p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className={`text-sm font-bold ${VOL_COLORS[race.volatility_rank]} tracking-wider`}>
+                        {STARS[race.volatility_rank]}
+                      </p>
+                      <p className="text-[10px] text-tornado-muted">{race.volatility_desc || `波乱度${race.volatility_rank}`}</p>
+                    </div>
+                    <ChevronDown size={16} className={`text-tornado-muted transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {isExpanded && race.horses.length > 0 && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        className="overflow-hidden"
+                      >
+                        <div className="border-t border-white/[0.06] px-4 pb-4">
+                          {/* Table Header */}
+                          <div className="grid grid-cols-[2rem_1fr_3.5rem_3.5rem_3.5rem] gap-1 text-[10px] text-tornado-muted font-medium uppercase tracking-wider py-2.5 border-b border-white/[0.04]">
+                            <span>No.</span>
+                            <span>馬名</span>
+                            <span className="text-right">Odds</span>
+                            <span className="text-right">AI%</span>
+                            <span className="text-right">Value</span>
+                          </div>
+                          {/* Horse Rows */}
+                          {race.horses
+                            .sort((a, b) => b.ai_win_prob - a.ai_win_prob)
+                            .map(h => {
+                              const isSelected = selectedHorses.includes(h.horse_number)
+                              return (
+                                <button
+                                  key={h.horse_number}
+                                  onClick={() => toggleHorse(race.race_order, h.horse_number)}
+                                  className={`w-full grid grid-cols-[2rem_1fr_3.5rem_3.5rem_3.5rem] gap-1 items-center py-2 border-b border-white/[0.03] text-sm transition-all duration-150 ${
+                                    isSelected
+                                      ? 'bg-tornado-accent/10 border-l-2 border-l-tornado-accent'
+                                      : 'hover:bg-white/[0.02] border-l-2 border-l-transparent'
+                                  }`}
+                                >
+                                  <span className={`text-xs font-bold ${isSelected ? 'text-tornado-accent' : ''}`}>
+                                    {h.horse_number}
+                                  </span>
+                                  <span className={`text-left text-xs truncate ${isSelected ? 'text-white font-medium' : 'text-tornado-text'}`}>
+                                    {h.horse_name}
+                                  </span>
+                                  <span className="text-right text-xs text-tornado-muted">
+                                    {h.odds > 0 ? `${h.odds}x` : '-'}
+                                  </span>
+                                  <span className="text-right text-xs">
+                                    {(h.ai_win_prob * 100).toFixed(1)}%
+                                  </span>
+                                  <span className={`text-right text-xs font-bold ${
+                                    h.value_score >= 1.5 ? 'text-emerald-400' : h.value_score <= 0.7 ? 'text-red-400' : 'text-tornado-text'
+                                  }`}>
+                                    {h.value_score.toFixed(2)}
+                                  </span>
+                                </button>
+                              )
+                            })}
+                          {/* Selection Summary */}
+                          <div className="flex items-center justify-between mt-3">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[11px] text-tornado-muted">選択中:</span>
+                              {selectedHorses.length > 0 ? (
+                                <div className="flex gap-1">
+                                  {selectedHorses.map(n => (
+                                    <span key={n} className="text-[10px] bg-tornado-accent/20 text-tornado-accent rounded-md px-1.5 py-0.5 font-medium">
+                                      {n}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-[11px] text-tornado-muted">なし</span>
+                              )}
+                            </div>
+                            <span className="text-[11px] text-tornado-muted">{selectedHorses.length}頭</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </GlassCard>
+              </motion.div>
+            )
+          })}
+
+          {/* Controls Panel */}
+          <motion.div variants={fadeUp} custom={10}>
+            <SectionLabel icon={Swords} label="生成設定" />
+            <GlassCard className="p-5 space-y-5">
+              {/* Budget */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs text-tornado-muted font-medium uppercase tracking-wider">Budget</label>
+                  <span className="text-lg font-black">¥{budget.toLocaleString()}</span>
+                </div>
                 <input
                   type="range"
                   min={1000}
@@ -643,15 +830,20 @@ export default function DashboardPage() {
                   step={1000}
                   value={budget}
                   onChange={e => setBudget(Number(e.target.value))}
-                  className="flex-1 accent-tornado-accent"
+                  className="w-full h-1.5 rounded-full appearance-none bg-white/[0.08] accent-tornado-accent cursor-pointer"
                 />
-                <span className="text-lg font-bold w-24 text-right">¥{budget.toLocaleString()}</span>
+                <div className="flex justify-between text-[10px] text-tornado-muted mt-1">
+                  <span>¥1,000</span>
+                  <span>¥30,000</span>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="text-sm text-tornado-muted">目標払戻</label>
-              <div className="flex items-center gap-3 mt-1">
+              {/* Target */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs text-tornado-muted font-medium uppercase tracking-wider">Target Payout</label>
+                  <span className="text-lg font-black text-tornado-gold">¥{targetPayout.toLocaleString()}</span>
+                </div>
                 <input
                   type="range"
                   min={100000}
@@ -659,259 +851,365 @@ export default function DashboardPage() {
                   step={100000}
                   value={targetPayout}
                   onChange={e => setTargetPayout(Number(e.target.value))}
-                  className="flex-1 accent-tornado-gold"
+                  className="w-full h-1.5 rounded-full appearance-none bg-white/[0.08] accent-tornado-gold cursor-pointer"
                 />
-                <span className="text-lg font-bold w-24 text-right">¥{targetPayout.toLocaleString()}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-3">
-              <label className="text-sm text-tornado-muted">リスク</label>
-              <select
-                value={riskLevel}
-                onChange={e => setRiskLevel(e.target.value as any)}
-                className="bg-tornado-bg border border-tornado-border rounded-lg px-3 py-2 text-sm"
-              >
-                <option value="conservative">堅実</option>
-                <option value="balanced">バランス</option>
-                <option value="aggressive">攻め</option>
-              </select>
-            </div>
-
-            <button
-              onClick={generateTicket}
-              disabled={generatingTicket}
-              className="w-full py-3 bg-gradient-to-r from-tornado-accent to-tornado-orange text-white font-bold rounded-lg hover:opacity-90 transition disabled:opacity-40"
-            >
-              {generatingTicket ? '🌪️ 生成中...' : '🌪️ 買い目生成'}
-            </button>
-
-            <button
-              onClick={generateScenarios}
-              disabled={generating}
-              className="w-full py-3 bg-tornado-accent text-white font-bold rounded-lg hover:opacity-90 transition disabled:opacity-40"
-            >
-              {generating ? '🌪️ 生成中...' : '🌪️ 3シナリオ生成'}
-            </button>
-          </div>
-
-          {/* Ticket (live) */}
-          {Object.keys(customTickets).length > 0 && (
-            <div className="bg-tornado-card border border-tornado-border rounded-xl p-4 space-y-3">
-              <h2 className="text-lg font-bold">🎯 現在の買い目</h2>
-              <div className="grid grid-cols-5 gap-2 text-center text-xs">
-                {races.map((race, i) => {
-                  const sel = customTickets?.[`R${race.race_order}`] || []
-                  return (
-                    <div key={i} className="bg-tornado-bg rounded-lg p-2">
-                      <p className="text-tornado-muted">R{race.race_order}</p>
-                      <p className="font-bold text-sm">{sel.length}頭</p>
-                      <p className="text-tornado-muted">{sel.join(',') || '-'}</p>
-                    </div>
-                  )
-                })}
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>{live.total_combinations}点 / ¥{live.investment.toLocaleString()}</span>
-                <span className="text-tornado-accent font-bold">〜¥{live.estimated_payout_range.max.toLocaleString()}</span>
-              </div>
-              {ticket && (
-                <div className="text-xs text-tornado-muted flex justify-between">
-                  <span>的中率(目安): {(ticket.hit_probability * 100).toFixed(1)}%</span>
-                  <span>期待値(目安): {ticket.expected_value.toFixed(2)}</span>
+                <div className="flex justify-between text-[10px] text-tornado-muted mt-1">
+                  <span>¥100K</span>
+                  <span>¥20M</span>
                 </div>
-              )}
-
-              <div className="flex items-center justify-between gap-3">
-                <button
-                  onClick={saveCurrentTicket}
-                  disabled={saving}
-                  className="px-4 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-sm font-bold hover:bg-white/[0.08] transition disabled:opacity-40"
-                >
-                  {saving ? '保存中...' : '💾 保存'}
-                </button>
-                <a href="/history" className="text-sm text-tornado-accent underline">
-                  保存済みを見る →
-                </a>
-              </div>
-              {saveMsg && <p className="text-xs text-tornado-muted">{saveMsg}</p>}
-
-              <div className="flex items-center justify-between gap-3">
-                <button
-                  onClick={runSimulate}
-                  disabled={simulating}
-                  className="px-4 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-sm font-bold hover:bg-white/[0.06] transition disabled:opacity-40"
-                >
-                  {simulating ? '計算中...' : '🧪 1頭飛んだら？'}
-                </button>
-                <button
-                  onClick={() => {
-                    setLoading(true)
-                    fetch(`${API}/api/win5/races?refresh=1`)
-                      .then(r => r.json())
-                      .then(data => {
-                        setRaces(data.races || [])
-                        setLoading(false)
-                      })
-                      .catch(() => setLoading(false))
-                  }}
-                  className="text-sm text-tornado-muted underline"
-                >
-                  最新で更新
-                </button>
               </div>
 
-              <div className="flex items-center justify-between gap-3">
-                <button
-                  onClick={runOverlap}
-                  disabled={overlapLoading}
-                  className="px-4 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-sm font-bold hover:bg-white/[0.06] transition disabled:opacity-40"
-                >
-                  {overlapLoading ? '集計中...' : '👥 被り度チェック'}
-                </button>
-                <span className="text-[11px] text-tornado-muted">
-                  保存済み買い目から集計します
-                </span>
+              {/* Risk Level */}
+              <div>
+                <label className="text-xs text-tornado-muted font-medium uppercase tracking-wider block mb-2">Risk Level</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: 'conservative', label: '堅実', icon: Shield, color: 'blue' },
+                    { value: 'balanced', label: 'バランス', icon: Target, color: 'yellow' },
+                    { value: 'aggressive', label: '攻め', icon: Flame, color: 'red' },
+                  ].map(opt => {
+                    const isActive = riskLevel === opt.value
+                    const colorMap: Record<string, string> = {
+                      blue: isActive ? 'border-blue-500/50 bg-blue-500/10 text-blue-400' : '',
+                      yellow: isActive ? 'border-yellow-500/50 bg-yellow-500/10 text-yellow-400' : '',
+                      red: isActive ? 'border-red-500/50 bg-red-500/10 text-red-400' : '',
+                    }
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => setRiskLevel(opt.value as any)}
+                        className={`flex flex-col items-center gap-1 py-3 rounded-xl border transition-all duration-200 ${
+                          isActive
+                            ? colorMap[opt.color]
+                            : 'border-white/[0.06] bg-white/[0.02] text-tornado-muted hover:bg-white/[0.04]'
+                        }`}
+                      >
+                        <opt.icon size={16} />
+                        <span className="text-xs font-medium">{opt.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
 
-              {overlapMsg && <p className="text-xs text-tornado-muted">{overlapMsg}</p>}
-
-              {overlap && overlap.total_tickets > 0 && (
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 space-y-2">
-                  <p className="text-sm font-bold">👥 被り度（{overlap.total_tickets}件中）</p>
-                  <div className="space-y-1 text-[11px] text-tornado-muted">
-                    {Object.entries(overlap.overlap || {}).map(([rk, arr]) => (
-                      <div key={rk} className="flex flex-wrap gap-x-3 gap-y-1">
-                        <span className="text-white">{rk}:</span>
-                        {arr.map(x => (
-                          <span key={x.horse_number}>
-                            {x.horse_number}（{Math.round(x.ratio * 100)}%）
-                          </span>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                  {Object.values(overlap.overlap || {}).some(arr => arr.some(x => x.ratio >= 0.5)) && (
-                    <p className="text-[11px] text-red-400">
-                      ⚠️ 被りが高い馬が含まれています。高配当狙いなら一部を穴に寄せると効果的です。
-                    </p>
+              {/* Generate Buttons */}
+              <div className="space-y-2 pt-1">
+                <PremiumButton
+                  onClick={generateTicket}
+                  disabled={generatingTicket}
+                  className="w-full py-3.5 text-sm"
+                >
+                  {generatingTicket ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="tornado-spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
+                      生成中...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <Zap size={16} />
+                      買い目生成
+                    </span>
                   )}
-                </div>
-              )}
+                </PremiumButton>
 
-              <div className="flex items-center justify-between gap-3">
-                <button
-                  onClick={runHeatmap}
-                  disabled={heatmapLoading}
-                  className="px-4 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-sm font-bold hover:bg-white/[0.06] transition disabled:opacity-40"
+                <PremiumButton
+                  onClick={generateScenarios}
+                  disabled={generating}
+                  variant="secondary"
+                  className="w-full py-3 text-sm"
                 >
-                  {heatmapLoading ? '作成中...' : '🔥 爆発ヒートマップ'}
-                </button>
-                <span className="text-[11px] text-tornado-muted">
-                  選択馬の中で「爆発に効く馬」を可視化
-                </span>
+                  {generating ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="tornado-spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
+                      生成中...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <BarChart3 size={16} />
+                      3シナリオ生成
+                    </span>
+                  )}
+                </PremiumButton>
               </div>
+            </GlassCard>
+          </motion.div>
 
-              {heatmapMsg && <p className="text-xs text-tornado-muted">{heatmapMsg}</p>}
+          {/* Current Ticket */}
+          {Object.keys(customTickets).length > 0 && (
+            <motion.div variants={fadeUp} custom={11}>
+              <SectionLabel icon={Target} label="現在の買い目" />
+              <GlassCard className="p-4 space-y-4">
+                {/* Race Selection Grid */}
+                <div className="grid grid-cols-5 gap-2">
+                  {races.map((race) => {
+                    const sel = customTickets?.[`R${race.race_order}`] || []
+                    return (
+                      <div key={race.race_order} className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-2.5 text-center">
+                        <p className="text-[10px] text-tornado-muted font-medium">R{race.race_order}</p>
+                        <p className="text-base font-black mt-0.5">{sel.length}</p>
+                        <p className="text-[9px] text-tornado-muted truncate">{sel.join(', ') || '-'}</p>
+                      </div>
+                    )
+                  })}
+                </div>
 
-              {heatmap && (
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 space-y-2">
-                  <p className="text-sm font-bold">
-                    🔥 爆発ヒートマップ（最大候補 {heatmap.max_per_race} / 計算 {heatmap.total_combinations}通り）
-                  </p>
-                  <p className="text-[11px] text-tornado-muted">
-                    基準（最大）: ¥{heatmap.global_max_route_payout.toLocaleString()}
-                  </p>
-                  <div className="space-y-3">
-                    {heatmap.races.map(r => (
-                      <div key={r.race_order}>
-                        <p className="text-xs text-tornado-muted mb-1">R{r.race_order} {r.race_name}</p>
-                        <div className="grid grid-cols-3 gap-2">
-                          {r.items.map(it => {
-                            const alpha = Math.min(0.85, 0.15 + it.max_route_ratio * 0.7)
-                            return (
-                              <div
-                                key={it.horse_number}
-                                className="rounded-lg border border-white/10 p-2"
-                                style={{ background: `rgba(239,68,68,${alpha})` }}
-                              >
-                                <p className="text-xs font-bold text-white">#{it.horse_number}</p>
-                                <p className="text-[10px] text-white/90 truncate">{it.horse_name}</p>
-                                <p className="text-[10px] text-white/90">〜¥{it.max_route_payout.toLocaleString()}</p>
-                              </div>
-                            )
-                          })}
+                {/* Stats */}
+                <div className="flex items-center justify-between rounded-xl bg-white/[0.03] border border-white/[0.06] p-3">
+                  <div>
+                    <p className="text-[10px] text-tornado-muted">点数 / 投資</p>
+                    <p className="text-sm font-bold">{live.total_combinations}点 / ¥{live.investment.toLocaleString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-tornado-muted">推定払戻</p>
+                    <p className="text-sm font-bold gradient-text">~¥{live.estimated_payout_range.max.toLocaleString()}</p>
+                  </div>
+                </div>
+
+                {ticket && (
+                  <div className="flex justify-between text-[11px] text-tornado-muted px-1">
+                    <span>的中率: {(ticket.hit_probability * 100).toFixed(1)}%</span>
+                    <span>期待値: {ticket.expected_value.toFixed(2)}</span>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-2">
+                  <PremiumButton
+                    onClick={saveCurrentTicket}
+                    disabled={saving}
+                    variant="secondary"
+                    className="py-2.5 text-xs"
+                  >
+                    <span className="flex items-center justify-center gap-1.5">
+                      <Save size={14} />
+                      {saving ? '保存中...' : '保存'}
+                    </span>
+                  </PremiumButton>
+                  <Link href="/history" className="flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold rounded-xl bg-white/[0.06] border border-white/10 text-tornado-muted hover:text-white hover:bg-white/[0.10] transition-all">
+                    保存済みを見る →
+                  </Link>
+                </div>
+                {saveMsg && (
+                  <p className="text-xs text-center text-tornado-muted">{saveMsg}</p>
+                )}
+
+                {/* Analysis Tools */}
+                <div className="space-y-2">
+                  <p className="text-[11px] text-tornado-muted font-medium uppercase tracking-wider">分析ツール</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <PremiumButton onClick={runSimulate} disabled={simulating} variant="ghost" className="py-2.5 text-xs border border-white/[0.06] rounded-xl">
+                      <span className="flex items-center justify-center gap-1.5">
+                        <FlaskConical size={14} />
+                        {simulating ? '計算中...' : '1頭飛んだら？'}
+                      </span>
+                    </PremiumButton>
+                    <PremiumButton
+                      onClick={() => {
+                        setLoading(true)
+                        fetch(`${API}/api/win5/races?refresh=1`)
+                          .then(r => r.json())
+                          .then(data => {
+                            setRaces(data.races || [])
+                            setLoading(false)
+                          })
+                          .catch(() => setLoading(false))
+                      }}
+                      variant="ghost"
+                      className="py-2.5 text-xs border border-white/[0.06] rounded-xl"
+                    >
+                      <span className="flex items-center justify-center gap-1.5">
+                        <RefreshCw size={14} />
+                        最新で更新
+                      </span>
+                    </PremiumButton>
+                    <PremiumButton onClick={runOverlap} disabled={overlapLoading} variant="ghost" className="py-2.5 text-xs border border-white/[0.06] rounded-xl">
+                      <span className="flex items-center justify-center gap-1.5">
+                        <Users size={14} />
+                        {overlapLoading ? '集計中...' : '被り度チェック'}
+                      </span>
+                    </PremiumButton>
+                    <PremiumButton onClick={runHeatmap} disabled={heatmapLoading} variant="ghost" className="py-2.5 text-xs border border-white/[0.06] rounded-xl">
+                      <span className="flex items-center justify-center gap-1.5">
+                        <Flame size={14} />
+                        {heatmapLoading ? '作成中...' : '爆発ヒートマップ'}
+                      </span>
+                    </PremiumButton>
+                  </div>
+                </div>
+
+                {overlapMsg && <p className="text-xs text-tornado-muted text-center">{overlapMsg}</p>}
+
+                {/* Overlap Results */}
+                {overlap && overlap.total_tickets > 0 && (
+                  <GlassCard className="p-3 space-y-2">
+                    <p className="text-xs font-bold flex items-center gap-1.5">
+                      <Users size={13} className="text-tornado-accent" />
+                      被り度（{overlap.total_tickets}件中）
+                    </p>
+                    <div className="space-y-1.5">
+                      {Object.entries(overlap.overlap || {}).map(([rk, arr]) => (
+                        <div key={rk} className="flex items-center gap-2">
+                          <span className="text-[11px] font-bold text-white w-6">{rk}</span>
+                          <div className="flex flex-wrap gap-1">
+                            {arr.map(x => {
+                              const ratio = Math.round(x.ratio * 100)
+                              const color = ratio >= 50 ? 'bg-red-500/20 text-red-400 border-red-500/20' : 'bg-white/[0.04] text-tornado-muted border-white/[0.06]'
+                              return (
+                                <span key={x.horse_number} className={`text-[10px] px-1.5 py-0.5 rounded-md border ${color}`}>
+                                  {x.horse_number}({ratio}%)
+                                </span>
+                              )
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-tornado-muted">
-                    ※ オッズ未確定時は概算のため、週後半ほど精度が上がります。
-                  </p>
-                </div>
-              )}
+                      ))}
+                    </div>
+                    {Object.values(overlap.overlap || {}).some(arr => arr.some(x => x.ratio >= 0.5)) && (
+                      <p className="text-[10px] text-red-400 flex items-start gap-1">
+                        <span>●</span>
+                        被りが高い馬あり。高配当狙いなら穴に寄せると効果的です。
+                      </p>
+                    )}
+                  </GlassCard>
+                )}
 
-              {sim && (
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 space-y-2">
-                  <p className="text-sm font-bold">🧪 払戻シミュレーション（目安）</p>
-                  <div className="flex justify-between text-xs text-tornado-muted">
-                    <span>通常: ¥{sim.base_estimated_payout.min.toLocaleString()}〜¥{sim.base_estimated_payout.max.toLocaleString()}</span>
-                    <span>人気馬飛び: ¥{sim.favorite_miss_estimated_payout.min.toLocaleString()}〜¥{sim.favorite_miss_estimated_payout.max.toLocaleString()}</span>
-                  </div>
-                  <div className="grid grid-cols-1 gap-1 text-[11px] text-tornado-muted">
-                    {sim.per_race.map(r => (
-                      <div key={r.race_order} className="flex justify-between">
-                        <span>R{r.race_order} {r.race_name}（人気: {r.favorite_horse_number ?? '-'}）</span>
-                        <span>{r.base_odds_range.min.toFixed(1)}〜{r.base_odds_range.max.toFixed(1)} → {r.favorite_miss_odds_range.min.toFixed(1)}〜{r.favorite_miss_odds_range.max.toFixed(1)}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-tornado-muted">
-                    ※ オッズ未確定の時期は概算（0扱い）になり、差分が出ないことがあります。
-                  </p>
-                </div>
-              )}
+                {heatmapMsg && <p className="text-xs text-tornado-muted text-center">{heatmapMsg}</p>}
 
-              <p className="text-[11px] text-tornado-muted">
-                ※ 馬をタップして選択を増減できます（点数・投資額はリアルタイム計算）。
-              </p>
-            </div>
+                {/* Heatmap */}
+                {heatmap && (
+                  <GlassCard className="p-3 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-bold flex items-center gap-1.5">
+                        <Flame size={13} className="text-tornado-accent" />
+                        爆発ヒートマップ
+                      </p>
+                      <span className="text-[10px] text-tornado-muted">{heatmap.total_combinations}通り</span>
+                    </div>
+                    <p className="text-[10px] text-tornado-muted">
+                      基準: ~¥{heatmap.global_max_route_payout.toLocaleString()}
+                    </p>
+                    <div className="space-y-3">
+                      {heatmap.races.map(r => (
+                        <div key={r.race_order}>
+                          <p className="text-[11px] text-tornado-muted mb-1.5 font-medium">R{r.race_order} {r.race_name}</p>
+                          <div className="grid grid-cols-3 gap-1.5">
+                            {r.items.map(it => {
+                              const alpha = Math.min(0.85, 0.15 + it.max_route_ratio * 0.7)
+                              return (
+                                <div
+                                  key={it.horse_number}
+                                  className="rounded-xl border border-white/10 p-2"
+                                  style={{ background: `linear-gradient(135deg, rgba(239,68,68,${alpha}), rgba(249,115,22,${alpha * 0.6}))` }}
+                                >
+                                  <p className="text-[11px] font-bold text-white">#{it.horse_number}</p>
+                                  <p className="text-[9px] text-white/80 truncate">{it.horse_name}</p>
+                                  <p className="text-[10px] text-white/90 font-medium mt-0.5">~¥{it.max_route_payout.toLocaleString()}</p>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-[9px] text-tornado-muted">
+                      ※ オッズ未確定時は概算。週後半ほど精度が上がります。
+                    </p>
+                  </GlassCard>
+                )}
+
+                {/* Simulation Results */}
+                {sim && (
+                  <GlassCard className="p-3 space-y-2">
+                    <p className="text-xs font-bold flex items-center gap-1.5">
+                      <FlaskConical size={13} className="text-tornado-accent" />
+                      払戻シミュレーション
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-xl bg-white/[0.03] border border-white/[0.04] p-2.5">
+                        <p className="text-[10px] text-tornado-muted">通常</p>
+                        <p className="text-xs font-bold">¥{sim.base_estimated_payout.min.toLocaleString()}</p>
+                        <p className="text-[10px] text-tornado-muted">~¥{sim.base_estimated_payout.max.toLocaleString()}</p>
+                      </div>
+                      <div className="rounded-xl bg-tornado-accent/5 border border-tornado-accent/10 p-2.5">
+                        <p className="text-[10px] text-tornado-accent">人気馬飛び</p>
+                        <p className="text-xs font-bold text-tornado-accent">¥{sim.favorite_miss_estimated_payout.min.toLocaleString()}</p>
+                        <p className="text-[10px] text-tornado-muted">~¥{sim.favorite_miss_estimated_payout.max.toLocaleString()}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      {sim.per_race.map(r => (
+                        <div key={r.race_order} className="flex justify-between text-[10px] text-tornado-muted py-0.5 border-b border-white/[0.03]">
+                          <span>R{r.race_order} {r.race_name}（人気:{r.favorite_horse_number ?? '-'}）</span>
+                          <span>{r.base_odds_range.min.toFixed(1)}~{r.base_odds_range.max.toFixed(1)} → {r.favorite_miss_odds_range.min.toFixed(1)}~{r.favorite_miss_odds_range.max.toFixed(1)}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-[9px] text-tornado-muted">
+                      ※ オッズ未確定の時期は概算になることがあります。
+                    </p>
+                  </GlassCard>
+                )}
+
+                <p className="text-[10px] text-tornado-muted text-center">
+                  馬をタップして選択を調整（点数・投資額はリアルタイム計算）
+                </p>
+              </GlassCard>
+            </motion.div>
           )}
 
           {/* Scenarios */}
           {scenarios && (
-            <div className="space-y-3">
-              <h2 className="text-lg font-bold">📊 3シナリオ</h2>
-              {[
-                { key: 'main' as const, label: '🔵 本線（堅実）', data: scenarios.main },
-                { key: 'medium' as const, label: '🟡 中荒れ', data: scenarios.medium },
-                { key: 'wild' as const, label: '🔴 大荒れ', data: scenarios.wild },
-              ].map(({ key, label, data }) => (
-                <div key={key} className="bg-tornado-card border border-tornado-border rounded-xl p-4">
-                  <p className="font-bold mb-2">{label}</p>
-                  <div className="grid grid-cols-5 gap-2 text-center text-xs mb-3">
-                    {races.map((race, i) => {
-                      const sel = data.tickets?.[`R${race.race_order}`] || []
-                      return (
-                        <div key={i} className="bg-tornado-bg rounded-lg p-2">
-                          <p className="text-tornado-muted">R{race.race_order}</p>
-                          <p className="font-bold text-sm">{sel.length}頭</p>
-                          <p className="text-tornado-muted">{sel.join(',')}</p>
-                        </div>
-                      )
-                    })}
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>{data.total_combinations}点 / ¥{data.investment?.toLocaleString()}</span>
-                    <span className="text-tornado-accent font-bold">
-                      〜¥{(data.estimated_payout_range?.max || 0).toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <motion.div variants={fadeUp} custom={12}>
+              <SectionLabel icon={BarChart3} label="3シナリオ" />
+              <div className="space-y-3">
+                {[
+                  { key: 'main' as const, label: '本線（堅実）', icon: Shield, color: 'blue', data: scenarios.main },
+                  { key: 'medium' as const, label: '中荒れ', icon: Target, color: 'yellow', data: scenarios.medium },
+                  { key: 'wild' as const, label: '大荒れ', icon: Flame, color: 'red', data: scenarios.wild },
+                ].map(({ key, label, icon: Icon, color, data }) => {
+                  const colorMap: Record<string, string> = {
+                    blue: 'from-blue-500/10 border-blue-500/20',
+                    yellow: 'from-yellow-500/10 border-yellow-500/20',
+                    red: 'from-red-500/10 border-red-500/20',
+                  }
+                  const textColor: Record<string, string> = {
+                    blue: 'text-blue-400',
+                    yellow: 'text-yellow-400',
+                    red: 'text-red-400',
+                  }
+                  return (
+                    <GlassCard key={key} className={`p-4 bg-gradient-to-br ${colorMap[color]} to-transparent`}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Icon size={16} className={textColor[color]} />
+                        <p className={`text-sm font-bold ${textColor[color]}`}>{label}</p>
+                      </div>
+                      <div className="grid grid-cols-5 gap-1.5 mb-3">
+                        {races.map((race) => {
+                          const sel = data.tickets?.[`R${race.race_order}`] || []
+                          return (
+                            <div key={race.race_order} className="rounded-lg bg-white/[0.04] border border-white/[0.06] p-2 text-center">
+                              <p className="text-[9px] text-tornado-muted">R{race.race_order}</p>
+                              <p className="text-sm font-black">{sel.length}</p>
+                              <p className="text-[9px] text-tornado-muted truncate">{sel.join(',')}</p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-tornado-muted">
+                          {data.total_combinations}点 / ¥{data.investment?.toLocaleString()}
+                        </span>
+                        <span className="text-sm font-bold gradient-text">
+                          ~¥{(data.estimated_payout_range?.max || 0).toLocaleString()}
+                        </span>
+                      </div>
+                    </GlassCard>
+                  )
+                })}
+              </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
       )}
     </div>
     </AuthGuard>
