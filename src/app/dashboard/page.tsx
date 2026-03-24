@@ -45,6 +45,18 @@ type Scenarios = {
   wild: TicketResult
 }
 
+type SimResult = {
+  base_estimated_payout: { min: number; max: number }
+  favorite_miss_estimated_payout: { min: number; max: number }
+  per_race: Array<{
+    race_order: number
+    race_name: string
+    favorite_horse_number: number | null
+    base_odds_range: { min: number; max: number }
+    favorite_miss_odds_range: { min: number; max: number }
+  }>
+}
+
 const STARS = ['', '★', '★★', '★★★', '★★★★', '★★★★★']
 const VOL_COLORS = ['', 'text-blue-400', 'text-cyan-400', 'text-yellow-400', 'text-orange-400', 'text-red-500']
 const VOL_BG = ['', 'border-blue-800', 'border-cyan-800', 'border-yellow-800', 'border-orange-800', 'border-red-800']
@@ -67,6 +79,8 @@ export default function DashboardPage() {
   const [generatingTicket, setGeneratingTicket] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
+  const [simulating, setSimulating] = useState(false)
+  const [sim, setSim] = useState<SimResult | null>(null)
   const [expandedRace, setExpandedRace] = useState<number | null>(null)
 
   useEffect(() => {
@@ -77,6 +91,21 @@ export default function DashboardPage() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('tornado_draft_ticket')
+      if (!raw) return
+      const parsed = JSON.parse(raw)
+      if (parsed?.tickets) {
+        setTicket(parsed)
+        setCustomTickets(parsed.tickets)
+        setSaveMsg('チャットの買い目を反映しました')
+      }
+      localStorage.removeItem('tornado_draft_ticket')
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -153,11 +182,12 @@ export default function DashboardPage() {
       const res = await fetch(`${API}/api/win5/tickets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ budget, target_payout: targetPayout, risk_level: riskLevel }),
+        body: JSON.stringify({ budget, target_payout: targetPayout, risk_level: riskLevel, refresh: true }),
       })
       const data = await res.json()
       setTicket(data)
       setCustomTickets(data.tickets || {})
+      setSim(null)
     } catch {
       // ignore
     } finally {
@@ -206,6 +236,24 @@ export default function DashboardPage() {
       setSaveMsg('通信エラーが発生しました')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const runSimulate = async () => {
+    if (Object.keys(customTickets).length === 0) return
+    setSimulating(true)
+    try {
+      const res = await fetch(`${API}/api/win5/simulate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tickets: customTickets }),
+      })
+      const data = await res.json()
+      if (res.ok) setSim(data)
+    } catch {
+      // ignore
+    } finally {
+      setSimulating(false)
     }
   }
 
@@ -422,6 +470,52 @@ export default function DashboardPage() {
                 </a>
               </div>
               {saveMsg && <p className="text-xs text-tornado-muted">{saveMsg}</p>}
+
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  onClick={runSimulate}
+                  disabled={simulating}
+                  className="px-4 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-sm font-bold hover:bg-white/[0.06] transition disabled:opacity-40"
+                >
+                  {simulating ? '計算中...' : '🧪 1頭飛んだら？'}
+                </button>
+                <button
+                  onClick={() => {
+                    setLoading(true)
+                    fetch(`${API}/api/win5/races?refresh=1`)
+                      .then(r => r.json())
+                      .then(data => {
+                        setRaces(data.races || [])
+                        setLoading(false)
+                      })
+                      .catch(() => setLoading(false))
+                  }}
+                  className="text-sm text-tornado-muted underline"
+                >
+                  最新で更新
+                </button>
+              </div>
+
+              {sim && (
+                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 space-y-2">
+                  <p className="text-sm font-bold">🧪 払戻シミュレーション（目安）</p>
+                  <div className="flex justify-between text-xs text-tornado-muted">
+                    <span>通常: ¥{sim.base_estimated_payout.min.toLocaleString()}〜¥{sim.base_estimated_payout.max.toLocaleString()}</span>
+                    <span>人気馬飛び: ¥{sim.favorite_miss_estimated_payout.min.toLocaleString()}〜¥{sim.favorite_miss_estimated_payout.max.toLocaleString()}</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-1 text-[11px] text-tornado-muted">
+                    {sim.per_race.map(r => (
+                      <div key={r.race_order} className="flex justify-between">
+                        <span>R{r.race_order} {r.race_name}（人気: {r.favorite_horse_number ?? '-'}）</span>
+                        <span>{r.base_odds_range.min.toFixed(1)}〜{r.base_odds_range.max.toFixed(1)} → {r.favorite_miss_odds_range.min.toFixed(1)}〜{r.favorite_miss_odds_range.max.toFixed(1)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-tornado-muted">
+                    ※ オッズ未確定の時期は概算（0扱い）になり、差分が出ないことがあります。
+                  </p>
+                </div>
+              )}
 
               <p className="text-[11px] text-tornado-muted">
                 ※ 馬をタップして選択を増減できます（点数・投資額はリアルタイム計算）。

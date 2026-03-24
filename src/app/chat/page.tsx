@@ -5,6 +5,7 @@ import Link from 'next/link'
 import AuthGuard from '@/components/auth/AuthGuard'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 import { useWin5Store } from '@/store/win5Store'
+import { useRouter } from 'next/navigation'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -28,6 +29,7 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const budget = useWin5Store(s => s.budget)
   const targetPayout = useWin5Store(s => s.targetPayout)
+  const router = useRouter()
 
   useEffect(() => {
     fetch(`${API}/api/chat/sessions`, { method: 'POST' })
@@ -43,6 +45,11 @@ export default function ChatPage() {
   const sendMessage = async (text?: string) => {
     const userMsg = (text || input).trim()
     if (!userMsg || isLoading) return
+
+    if (userMsg === '__APPLY_TICKET__') {
+      router.push('/dashboard')
+      return
+    }
 
     setInput('')
     setQuickReplies([])
@@ -96,6 +103,15 @@ export default function ChatPage() {
               setToolStatus('')
               if (event.quick_replies?.length > 0) {
                 setQuickReplies(event.quick_replies)
+              }
+              if (event.ticket) {
+                try {
+                  localStorage.setItem('tornado_draft_ticket', JSON.stringify(event.ticket))
+                } catch {}
+                setQuickReplies(prev => ([
+                  ...prev,
+                  { label: '📌 ダッシュボードへ反映', text: '__APPLY_TICKET__' },
+                ]))
               }
             }
           } catch {}
