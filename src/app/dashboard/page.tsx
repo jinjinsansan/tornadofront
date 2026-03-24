@@ -63,6 +63,25 @@ type OverlapResponse = {
   overlap: Record<string, Array<{ horse_number: number; count: number; ratio: number }>>
 }
 
+type HeatmapResponse = {
+  max_per_race: number
+  total_combinations: number
+  global_max_route_payout: number
+  races: Array<{
+    race_order: number
+    race_name: string
+    items: Array<{
+      horse_number: number
+      horse_name: string
+      odds: number
+      value_score: number
+      max_route_payout: number
+      max_route_ratio: number
+      routes_count: number
+    }>
+  }>
+}
+
 const STARS = ['', '★', '★★', '★★★', '★★★★', '★★★★★']
 const VOL_COLORS = ['', 'text-blue-400', 'text-cyan-400', 'text-yellow-400', 'text-orange-400', 'text-red-500']
 const VOL_BG = ['', 'border-blue-800', 'border-cyan-800', 'border-yellow-800', 'border-orange-800', 'border-red-800']
@@ -90,6 +109,9 @@ export default function DashboardPage() {
   const [overlapLoading, setOverlapLoading] = useState(false)
   const [overlap, setOverlap] = useState<OverlapResponse | null>(null)
   const [overlapMsg, setOverlapMsg] = useState('')
+  const [heatmapLoading, setHeatmapLoading] = useState(false)
+  const [heatmap, setHeatmap] = useState<HeatmapResponse | null>(null)
+  const [heatmapMsg, setHeatmapMsg] = useState('')
   const [expandedRace, setExpandedRace] = useState<number | null>(null)
 
   useEffect(() => {
@@ -296,6 +318,39 @@ export default function DashboardPage() {
       setOverlapMsg('通信エラーが発生しました')
     } finally {
       setOverlapLoading(false)
+    }
+  }
+
+  const runHeatmap = async () => {
+    const token = localStorage.getItem('tornado_token') || ''
+    if (!token) {
+      setHeatmapMsg('ログインが必要です')
+      return
+    }
+    if (Object.keys(customTickets).length === 0) return
+
+    setHeatmapLoading(true)
+    setHeatmapMsg('')
+    try {
+      const res = await fetch(`${API}/api/win5/explosion/heatmap`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tickets: customTickets, max_per_race: 6 }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setHeatmapMsg(data.error || '取得に失敗しました')
+        setHeatmap(null)
+      } else {
+        setHeatmap(data)
+      }
+    } catch {
+      setHeatmapMsg('通信エラーが発生しました')
+    } finally {
+      setHeatmapLoading(false)
     }
   }
 
@@ -719,6 +774,58 @@ export default function DashboardPage() {
                       ⚠️ 被りが高い馬が含まれています。高配当狙いなら一部を穴に寄せると効果的です。
                     </p>
                   )}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  onClick={runHeatmap}
+                  disabled={heatmapLoading}
+                  className="px-4 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-sm font-bold hover:bg-white/[0.06] transition disabled:opacity-40"
+                >
+                  {heatmapLoading ? '作成中...' : '🔥 爆発ヒートマップ'}
+                </button>
+                <span className="text-[11px] text-tornado-muted">
+                  選択馬の中で「爆発に効く馬」を可視化
+                </span>
+              </div>
+
+              {heatmapMsg && <p className="text-xs text-tornado-muted">{heatmapMsg}</p>}
+
+              {heatmap && (
+                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 space-y-2">
+                  <p className="text-sm font-bold">
+                    🔥 爆発ヒートマップ（最大候補 {heatmap.max_per_race} / 計算 {heatmap.total_combinations}通り）
+                  </p>
+                  <p className="text-[11px] text-tornado-muted">
+                    基準（最大）: ¥{heatmap.global_max_route_payout.toLocaleString()}
+                  </p>
+                  <div className="space-y-3">
+                    {heatmap.races.map(r => (
+                      <div key={r.race_order}>
+                        <p className="text-xs text-tornado-muted mb-1">R{r.race_order} {r.race_name}</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {r.items.map(it => {
+                            const alpha = Math.min(0.85, 0.15 + it.max_route_ratio * 0.7)
+                            return (
+                              <div
+                                key={it.horse_number}
+                                className="rounded-lg border border-white/10 p-2"
+                                style={{ background: `rgba(239,68,68,${alpha})` }}
+                              >
+                                <p className="text-xs font-bold text-white">#{it.horse_number}</p>
+                                <p className="text-[10px] text-white/90 truncate">{it.horse_name}</p>
+                                <p className="text-[10px] text-white/90">〜¥{it.max_route_payout.toLocaleString()}</p>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-tornado-muted">
+                    ※ オッズ未確定時は概算のため、週後半ほど精度が上がります。
+                  </p>
                 </div>
               )}
 
