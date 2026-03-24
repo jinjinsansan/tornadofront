@@ -1,22 +1,95 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  Zap,
+  Target,
+  BarChart3,
+  MessageCircle,
+  TrendingUp,
+  DollarSign,
+  Layers,
+  ChevronDown,
+  Sparkles,
+  Activity,
+  PieChart,
+  Flame,
+  Shield,
+} from "lucide-react";
+
+/* ── Feature data ── */
+const features = [
+  {
+    tag: "Feature 01",
+    icon: Activity,
+    color: "#ef4444",
+    title: "波乱度ランク",
+    titleHighlight: "5段階",
+    subtitle: "どのレースが荒れるか、AIが数値で示す",
+    desc: "出走頭数・AI指数の混戦度・1番人気の信頼性・オッズのエントロピー——4つの要素から各レースの「荒れやすさ」を1〜5で算出。堅いレースは1頭に絞り、荒れるレースは3〜5頭に広げる。この判断をAIが自動で行う。",
+    visual: [
+      { label: "中山10R 船橋S", stars: 3, color: "#fbbf24" },
+      { label: "中京10R 伊勢S", stars: 2, color: "#3b82f6" },
+      { label: "阪神11R 六甲S", stars: 4, color: "#f97316" },
+      { label: "中山11R マーチS", stars: 3, color: "#fbbf24" },
+      { label: "中京11R 高松宮記念", stars: 5, color: "#ef4444" },
+    ],
+  },
+  {
+    tag: "Feature 02",
+    icon: Target,
+    color: "#f97316",
+    title: "買い目",
+    titleHighlight: "自動生成",
+    subtitle: "予算と目標を言うだけ。AIが最適解を出す",
+    desc: "「予算5,000円で500万狙いたい」——それだけでいい。AIが波乱度に応じて各レースの頭数を配分し、予算内に収まる最適な買い目を自動生成する。期待値計算・的中確率・想定配当レンジまで全部出す。",
+  },
+  {
+    tag: "Feature 03",
+    icon: Layers,
+    color: "#fbbf24",
+    title: "3シナリオ",
+    titleHighlight: "同時提示",
+    subtitle: "本線・中荒れ・大荒れ。3つの戦略を比較して選ぶ",
+    desc: "WIN5に「正解」は1つじゃない。堅実に行く本線、1〜2頭穴を混ぜる中荒れ、高配当に全振りする大荒れ——3つのシナリオをそれぞれの点数・投資額・想定配当付きで同時に提示。土曜夜に比較して、日曜朝に決める。",
+    scenarios: [
+      { name: "🔵 本線", combos: "12点", payout: "〜50万", style: "堅実型" },
+      { name: "🟡 中荒れ", combos: "36点", payout: "〜300万", style: "バランス型" },
+      { name: "🔴 大荒れ", combos: "48点", payout: "〜1,200万", style: "ロマン型" },
+    ],
+  },
+  {
+    tag: "Feature 04",
+    icon: MessageCircle,
+    color: "#3b82f6",
+    title: "AI戦略",
+    titleHighlight: "チャット",
+    subtitle: "WIN5専門AIに、何でも聞ける",
+    desc: "「高松宮記念は荒れる？」「穴狙いで組んで」「R3だけ1頭に絞りたい」——自然言語で聞けば、WIN5の文脈に完全に接地したAIが即座に回答。買い目の調整も、戦略の相談も、全部チャットで完結する。",
+    chatMessages: [
+      { role: "user", text: "予算5000円で500万狙いたいんだけど" },
+      { role: "ai", text: "おっ、攻めるな。波乱度的にR3とR5を広げて、堅いR2は1頭で絞るのがベストだ。48点で組むぜ。" },
+    ],
+  },
+];
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
-      {/* ===== HEADER ===== */}
-      <header className="fixed top-0 w-full z-50 bg-tornado-deep/80 backdrop-blur-md border-b border-tornado-border/50">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+    <div className="min-h-screen bg-tornado-deep text-white selection:bg-tornado-accent/30 overflow-x-hidden font-sans">
+
+      {/* ━━━ Navigation ━━━ */}
+      <header className="fixed top-0 w-full z-50 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
             <span className="text-2xl">🌪️</span>
-            <span className="text-lg font-bold">TornadoAI</span>
+            <span className="text-lg font-black tracking-wide">TornadoAI</span>
           </div>
-          <nav className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-sm text-tornado-muted hover:text-white transition">ダッシュボード</Link>
+          <nav className="flex items-center gap-5">
+            <Link href="/dashboard" className="text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
             <Link
               href="/chat"
-              className="text-sm px-4 py-2 bg-gradient-accent text-white font-bold rounded-lg hover:opacity-90 transition"
+              className="text-sm px-5 py-2.5 bg-gradient-to-r from-tornado-accent to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
             >
               AIに相談
             </Link>
@@ -24,224 +97,403 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ===== HERO SECTION ===== */}
-      <section className="relative pt-32 pb-20 px-4 bg-gradient-hero overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-tornado-accent/5 rounded-full blur-3xl" />
-        <div className="absolute top-40 left-1/4 w-[300px] h-[300px] bg-tornado-orange/5 rounded-full blur-3xl" />
+      {/* ━━━ Hero ━━━ */}
+      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0 bg-gradient-hero" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-tornado-accent/[0.04] rounded-full blur-[150px]" />
+        <div className="absolute top-1/3 left-1/3 w-[400px] h-[400px] bg-tornado-orange/[0.03] rounded-full blur-[120px]" />
 
-        <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-block mb-6 px-4 py-1.5 bg-tornado-accent/10 border border-tornado-accent/30 rounded-full">
-            <span className="text-sm text-tornado-accent font-medium">WIN5 専門 AI戦略ツール</span>
-          </div>
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-8 inline-flex items-center gap-2 rounded-full border border-tornado-accent/30 bg-tornado-accent/5 px-5 py-2 backdrop-blur-sm"
+          >
+            <Zap className="h-4 w-4 text-tornado-accent" />
+            <span className="text-sm font-medium tracking-wide text-tornado-accent">WIN5 専門 AI戦略ツール</span>
+          </motion.div>
 
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
-            WIN5は、<br />
-            <span className="gradient-text">組み合わせで勝つ。</span>
-          </h1>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mb-2 text-4xl leading-none tracking-tight sm:text-7xl lg:text-8xl"
+            style={{ fontWeight: 900 }}
+          >
+            WIN5は、
+            <br />
+            <span className="bg-gradient-to-r from-tornado-accent via-tornado-orange to-tornado-gold bg-clip-text text-transparent">
+              組み合わせで勝つ。
+            </span>
+          </motion.h1>
 
-          <p className="text-lg md:text-xl text-tornado-muted max-w-2xl mx-auto mb-10 leading-relaxed">
-            予算と目標配当を伝えるだけ。<br />
-            AIが5レースの最適な組み合わせを自動設計する。<br />
-            <span className="text-tornado-text">「当てる」ではなく「爆発させる」</span>
-          </p>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.5 }}
+            className="mb-12 mt-6 max-w-2xl text-base font-light leading-relaxed text-white/60 md:text-xl"
+          >
+            予算と目標配当を伝えるだけ。AIが5レースの最適な買い目を自動設計する。
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+            className="flex flex-col sm:flex-row items-center gap-4"
+          >
             <Link
               href="/chat"
-              className="px-8 py-4 bg-gradient-accent text-white font-bold text-lg rounded-xl glow-red hover:opacity-90 transition"
+              className="inline-flex items-center justify-center gap-2 rounded-full px-9 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
+              style={{
+                background: "linear-gradient(135deg, #ef4444, #f97316)",
+                boxShadow: "0 0 30px rgba(239,68,68,0.3), 0 0 80px rgba(239,68,68,0.1)",
+              }}
             >
-              🌪️ 無料で始める
+              <Sparkles className="h-5 w-5" />
+              無料で始める
             </Link>
             <Link
               href="/dashboard"
-              className="px-8 py-4 bg-tornado-card border border-tornado-border text-tornado-text font-bold text-lg rounded-xl hover:bg-tornado-border transition"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/15 bg-white/5 px-8 py-5 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-tornado-orange/50 hover:bg-tornado-orange/10 hover:text-tornado-orange active:scale-95"
             >
-              📊 ダッシュボードを見る
+              <BarChart3 className="h-5 w-5" />
+              ダッシュボードを見る
             </Link>
-          </div>
+          </motion.div>
 
           {/* Stats */}
-          <div className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto">
-            <div>
-              <p className="text-2xl md:text-3xl font-bold gradient-text">5</p>
-              <p className="text-xs text-tornado-muted mt-1">レース横断分析</p>
-            </div>
-            <div>
-              <p className="text-2xl md:text-3xl font-bold gradient-text">3</p>
-              <p className="text-xs text-tornado-muted mt-1">シナリオ提示</p>
-            </div>
-            <div>
-              <p className="text-2xl md:text-3xl font-bold gradient-text">∞</p>
-              <p className="text-xs text-tornado-muted mt-1">AIと買い目相談</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== PROBLEM SECTION ===== */}
-      <section className="py-20 px-4 bg-tornado-deep">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
-            WIN5で<span className="text-tornado-accent">負ける理由</span>、わかってますか？
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
+            className="mt-14 flex flex-wrap items-center justify-center gap-8 sm:gap-12"
+          >
             {[
-              { icon: '❌', title: '1レースずつ予想してる', desc: 'WIN5は5レースの連立方程式。1レースずつ考えても最適な組み合わせにならない。' },
-              { icon: '❌', title: '点数が爆発して予算オーバー', desc: '全レース3頭ずつ → 243点 = 24,300円。計画なく広げると破産する。' },
-              { icon: '❌', title: '当たっても配当がショボい', desc: '人気馬ばかり入れると的中しても数万円。WIN5の意味がない。' },
-            ].map((item, i) => (
-              <div key={i} className="bg-tornado-card border border-tornado-border rounded-xl p-6">
-                <p className="text-2xl mb-3">{item.icon}</p>
-                <h3 className="font-bold mb-2 text-tornado-text">{item.title}</h3>
-                <p className="text-sm text-tornado-muted leading-relaxed">{item.desc}</p>
+              { value: "5", label: "レース横断分析" },
+              { value: "3", label: "シナリオ同時提示" },
+              { value: "∞", label: "AIと戦略相談" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-2xl font-black tracking-tight sm:text-3xl bg-gradient-to-r from-tornado-accent to-tornado-gold bg-clip-text text-transparent">
+                  {stat.value}
+                </p>
+                <p className="text-[11px] font-medium tracking-wider text-white/40">{stat.label}</p>
               </div>
             ))}
-          </div>
+          </motion.div>
         </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 1 }}
+          className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 flex flex-col items-center gap-2"
+        >
+          <span className="text-[10px] font-medium tracking-[0.3em] text-white/30 uppercase">Scroll</span>
+          <ChevronDown className="h-5 w-5 animate-bounce text-tornado-accent/50" />
+        </motion.div>
       </section>
 
-      {/* ===== SOLUTION / FEATURES ===== */}
-      <section className="py-20 px-4 bg-tornado-bg">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              トルネードAIが<span className="gradient-text">全部やる</span>
-            </h2>
-            <p className="text-tornado-muted">5レースを横断して、予算内で期待値最大の組み合わせを自動設計</p>
-          </div>
+      {/* ── Content wrapper ── */}
+      <div className="mx-auto max-w-[1200px]">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                icon: '🌪️',
-                title: '波乱度ランク',
-                desc: '各レースの荒れやすさを5段階で可視化。堅いレースは絞り、荒れるレースは広げる。AIが自動判定。',
-                color: 'border-tornado-orange/30',
-              },
-              {
-                icon: '🎯',
-                title: '買い目ジェネレーター',
-                desc: '「予算5,000円で500万狙い」→ 各レースの頭数を自動最適化。予算・目標・リスクを指定するだけ。',
-                color: 'border-tornado-accent/30',
-              },
-              {
-                icon: '📊',
-                title: '3シナリオ提示',
-                desc: '本線（堅実）・中荒れ・大荒れの3パターン。それぞれの点数・想定配当・的中率を比較して選べる。',
-                color: 'border-tornado-gold/30',
-              },
-              {
-                icon: '💬',
-                title: 'AI戦略チャット',
-                desc: '「高松宮記念は荒れる？」「穴狙いで組んで」自然言語で何でも聞ける。WIN5専門AIが即答。',
-                color: 'border-blue-500/30',
-              },
-            ].map((item, i) => (
-              <div key={i} className={`bg-gradient-card border ${item.color} rounded-xl p-6 hover:border-opacity-60 transition`}>
-                <p className="text-3xl mb-4">{item.icon}</p>
-                <h3 className="text-lg font-bold mb-2">{item.title}</h3>
-                <p className="text-sm text-tornado-muted leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== HOW IT WORKS ===== */}
-      <section className="py-20 px-4 bg-tornado-deep">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
-            使い方は<span className="gradient-text">3ステップ</span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { step: '01', title: '予算を決める', desc: '今週のWIN5にいくら使うか。1,000円〜自由に設定。', icon: '💰' },
-              { step: '02', title: 'AIが組み合わせを設計', desc: '波乱度・AI指数・オッズから5レースの最適な頭数配分を自動計算。', icon: '🌪️' },
-              { step: '03', title: '買い目を選んで購入', desc: '3シナリオから好みを選ぶだけ。あとはJRAで購入。', icon: '🎯' },
-            ].map((item, i) => (
-              <div key={i} className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-accent rounded-full flex items-center justify-center text-2xl glow-red">
-                  {item.icon}
+        {/* ━━━ Feature 01: 波乱度ランク ━━━ */}
+        <section className="relative py-28 sm:py-36" style={{ background: "#080c18" }}>
+          <div className="absolute left-1/2 top-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.04] blur-[150px]" style={{ background: features[0].color }} />
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+              {/* Text */}
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent p-8 backdrop-blur-sm md:p-12">
+                <div className="mb-6 flex items-center gap-3">
+                  <Activity className="h-12 w-12" style={{ color: features[0].color }} strokeWidth={1.5} />
+                  <span className="text-sm font-bold tracking-widest uppercase" style={{ color: features[0].color }}>Feature 01</span>
                 </div>
-                <p className="text-xs text-tornado-accent font-bold mb-2">STEP {item.step}</p>
-                <h3 className="font-bold mb-2">{item.title}</h3>
-                <p className="text-sm text-tornado-muted">{item.desc}</p>
+                <h2 className="mb-8 text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
+                  {features[0].title}
+                  <br />
+                  <span className="bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(135deg, ${features[0].color}, #f97316)` }}>
+                    {features[0].titleHighlight}
+                  </span>
+                </h2>
+                <p className="text-lg font-light leading-relaxed text-white/70 md:text-xl">{features[0].subtitle}</p>
+                <p className="mt-4 text-base leading-relaxed text-white/50">{features[0].desc}</p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ===== DASHBOARD PREVIEW ===== */}
-      <section className="py-20 px-4 bg-tornado-bg">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">
-            WIN5専用<span className="gradient-text">ダッシュボード</span>
-          </h2>
-          <p className="text-tornado-muted text-center mb-10">5レースを一覧で俯瞰。波乱度に応じて戦略を立てる。</p>
-
-          {/* Mock dashboard */}
-          <div className="bg-tornado-card border border-tornado-border rounded-2xl p-6 glow-red">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-bold">🌪️ 今週のWIN5</span>
-              <span className="text-xs text-tornado-gold font-bold">総合波乱度 15/25</span>
+              {/* Visual: Volatility bars */}
+              <div className="relative flex flex-col gap-3 rounded-[2rem] border border-white/10 bg-[#0a0e1a] p-8">
+                <p className="mb-2 text-xs font-bold tracking-[0.25em] text-white/30 uppercase">今週のWIN5 波乱度</p>
+                {features[0].visual?.map((race, i) => (
+                  <div key={i} className="flex items-center gap-4 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
+                    <span className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style={{ background: `${race.color}15`, color: race.color }}>
+                      R{i + 1}
+                    </span>
+                    <span className="flex-1 text-sm font-medium text-white/80">{race.label}</span>
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <div
+                          key={j}
+                          className="w-5 h-5 rounded-sm"
+                          style={{
+                            background: j < race.stars ? race.color : "rgba(255,255,255,0.05)",
+                            boxShadow: j < race.stars ? `0 0 8px ${race.color}40` : "none",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                <div className="mt-2 flex items-center justify-between text-xs text-white/30">
+                  <span>🔵 堅い</span>
+                  <span>🟡 混戦</span>
+                  <span>🔴 大荒れ</span>
+                </div>
+              </div>
             </div>
-            {[
-              { r: 1, venue: '中山10R', name: '船橋S', vol: 3 },
-              { r: 2, venue: '中京10R', name: '伊勢S', vol: 3 },
-              { r: 3, venue: '阪神11R', name: '六甲S', vol: 4 },
-              { r: 4, venue: '中山11R', name: 'マーチS', vol: 3 },
-              { r: 5, venue: '中京11R', name: '高松宮記念', vol: 2 },
-            ].map(race => (
-              <div key={race.r} className="flex items-center gap-3 py-2.5 border-b border-tornado-border/50 last:border-0">
-                <span className="w-8 h-8 bg-tornado-bg rounded-lg flex items-center justify-center text-xs font-bold">R{race.r}</span>
-                <span className="flex-1 text-sm font-medium">{race.venue} {race.name}</span>
-                <span className={`text-sm ${race.vol >= 4 ? 'text-red-400' : race.vol >= 3 ? 'text-yellow-400' : 'text-blue-400'}`}>
-                  {'★'.repeat(race.vol)}{'☆'.repeat(5 - race.vol)}
+          </div>
+        </section>
+
+        {/* ━━━ Feature 02: 買い目自動生成 ━━━ */}
+        <section className="relative py-28 sm:py-36" style={{ background: "#060a16" }}>
+          <div className="absolute left-1/2 top-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.04] blur-[150px]" style={{ background: features[1].color }} />
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="mb-6 flex items-center justify-center gap-3">
+                <Target className="h-12 w-12" style={{ color: features[1].color }} strokeWidth={1.5} />
+                <span className="text-sm font-bold tracking-widest uppercase" style={{ color: features[1].color }}>Feature 02</span>
+              </div>
+              <h2 className="mb-8 text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
+                {features[1].title}
+                <span className="bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(135deg, ${features[1].color}, #fbbf24)` }}>
+                  {features[1].titleHighlight}
                 </span>
+              </h2>
+              <p className="text-lg font-light leading-relaxed text-white/70 md:text-xl">{features[1].subtitle}</p>
+              <p className="mt-4 text-base leading-relaxed text-white/50 max-w-2xl mx-auto">{features[1].desc}</p>
+            </div>
+
+            {/* Visual: Ticket generation mock */}
+            <div className="mx-auto mt-14 max-w-xl">
+              <div className="rounded-[2rem] border-2 p-8" style={{ borderColor: `${features[1].color}30`, background: `${features[1].color}08` }}>
+                <div className="flex items-center gap-3 mb-6">
+                  <DollarSign className="h-8 w-8" style={{ color: features[1].color }} />
+                  <div>
+                    <p className="text-sm text-white/50">入力するのはこれだけ</p>
+                    <p className="font-bold text-white/90">予算 ¥5,000 → 目標 ¥5,000,000</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-5 gap-2 mb-4">
+                  {["1頭", "2頭", "3頭", "1頭", "2頭"].map((n, i) => (
+                    <div key={i} className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-center">
+                      <p className="text-xs text-white/40">R{i + 1}</p>
+                      <p className="text-lg font-black" style={{ color: features[1].color }}>{n}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                  <span className="text-sm text-white/50">12点 / ¥1,200</span>
+                  <span className="font-black text-lg" style={{ color: "#fbbf24" }}>最高想定 ¥12,400,000</span>
+                </div>
               </div>
-            ))}
-            <div className="mt-4 pt-4 border-t border-tornado-border flex justify-between items-center">
-              <span className="text-sm text-tornado-muted">予算 ¥5,000 / 48点</span>
-              <span className="text-sm font-bold text-tornado-gold">最高想定 ¥12,400,000</span>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ===== CTA ===== */}
-      <section className="py-20 px-4 bg-gradient-hero">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-6">
+        {/* ━━━ Feature 03: 3シナリオ ━━━ */}
+        <section className="relative py-28 sm:py-36" style={{ background: "#080c18" }}>
+          <div className="absolute left-1/2 top-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.04] blur-[150px]" style={{ background: features[2].color }} />
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto mb-16 max-w-3xl text-center">
+              <div className="mb-6 flex items-center justify-center gap-3">
+                <Layers className="h-12 w-12" style={{ color: features[2].color }} strokeWidth={1.5} />
+                <span className="text-sm font-bold tracking-widest uppercase" style={{ color: features[2].color }}>Feature 03</span>
+              </div>
+              <h2 className="mb-8 text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
+                {features[2].title}
+                <span className="bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(135deg, ${features[2].color}, #f97316)` }}>
+                  {features[2].titleHighlight}
+                </span>
+              </h2>
+              <p className="text-lg font-light leading-relaxed text-white/70 md:text-xl">{features[2].subtitle}</p>
+              <p className="mt-4 text-base leading-relaxed text-white/50 max-w-2xl mx-auto">{features[2].desc}</p>
+            </div>
+
+            {/* Scenario cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {features[2].scenarios?.map((s, i) => {
+                const colors = ["#3b82f6", "#fbbf24", "#ef4444"];
+                const c = colors[i];
+                return (
+                  <div
+                    key={i}
+                    className="group relative overflow-hidden rounded-[2rem] border-2 p-7 transition-all duration-300 hover:scale-[1.03]"
+                    style={{
+                      borderColor: `${c}40`,
+                      background: `linear-gradient(135deg, ${c}0a, transparent)`,
+                      boxShadow: `0 20px 60px -20px ${c}20`,
+                    }}
+                  >
+                    <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-20 blur-3xl transition-transform duration-500 group-hover:scale-150" style={{ background: c }} />
+                    <p className="relative text-2xl font-black mb-3">{s.name}</p>
+                    <p className="relative text-sm text-white/50 mb-1">{s.style}</p>
+                    <div className="relative mt-4 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-white/40">点数</span>
+                        <span className="font-bold" style={{ color: c }}>{s.combos}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-white/40">想定配当</span>
+                        <span className="font-bold" style={{ color: c }}>{s.payout}</span>
+                      </div>
+                    </div>
+                    <div className="mt-6 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                      <div className="h-full rounded-full" style={{ width: `${30 + i * 25}%`, background: `linear-gradient(to right, ${c}, ${c}80)` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ━━━ Feature 04: AIチャット ━━━ */}
+        <section className="relative py-28 sm:py-36" style={{ background: "#060a16" }}>
+          <div className="absolute left-1/2 top-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.04] blur-[150px]" style={{ background: features[3].color }} />
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+              {/* Text */}
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent p-8 backdrop-blur-sm md:p-12">
+                <div className="mb-6 flex items-center gap-3">
+                  <MessageCircle className="h-12 w-12" style={{ color: features[3].color }} strokeWidth={1.5} />
+                  <span className="text-sm font-bold tracking-widest uppercase" style={{ color: features[3].color }}>Feature 04</span>
+                </div>
+                <h2 className="mb-8 text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
+                  {features[3].title}
+                  <br />
+                  <span className="bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(135deg, ${features[3].color}, #60a5fa)` }}>
+                    {features[3].titleHighlight}
+                  </span>
+                </h2>
+                <p className="text-lg font-light leading-relaxed text-white/70 md:text-xl">{features[3].subtitle}</p>
+                <p className="mt-4 text-base leading-relaxed text-white/50">{features[3].desc}</p>
+              </div>
+
+              {/* Chat mock */}
+              <div className="relative rounded-[2rem] border border-white/10 bg-[#0a0e1a] p-6 sm:p-8">
+                <div className="flex items-center gap-2 mb-6 pb-4 border-b border-white/5">
+                  <span className="text-xl">🌪️</span>
+                  <span className="font-bold text-sm">TornadoAI</span>
+                  <span className="text-xs text-white/30 ml-auto">WIN5戦略AI</span>
+                </div>
+                <div className="space-y-4">
+                  {features[3].chatMessages?.map((msg, i) => (
+                    <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                      <div
+                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                          msg.role === "user"
+                            ? "bg-gradient-to-r from-tornado-accent to-tornado-orange text-white"
+                            : "border border-white/10 bg-white/[0.03] text-white/80"
+                        }`}
+                      >
+                        {msg.text}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 flex gap-2">
+                  <div className="flex-1 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-white/30">
+                    WIN5について何でも聞いてください...
+                  </div>
+                  <div className="w-16 rounded-xl bg-gradient-to-r from-tornado-accent to-tornado-orange flex items-center justify-center text-sm font-bold">
+                    送信
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ━━━ How It Works ━━━ */}
+        <section className="relative py-28 sm:py-36" style={{ background: "#080c18" }}>
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto mb-16 max-w-3xl text-center">
+              <span className="mb-4 block text-sm font-bold tracking-widest text-tornado-gold uppercase">How It Works</span>
+              <h2 className="text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
+                使い方は<span className="bg-gradient-to-r from-tornado-gold to-tornado-orange bg-clip-text text-transparent">シンプル</span>
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { step: "01", icon: DollarSign, title: "予算を決める", desc: "今週のWIN5にいくら使うか。1,000円〜自由に設定。", color: "#ef4444" },
+                { step: "02", icon: Zap, title: "AIが買い目を設計", desc: "波乱度・AI指数・オッズから5レースの最適な頭数配分を自動計算。", color: "#f97316" },
+                { step: "03", icon: Target, title: "選んで購入", desc: "3シナリオから好みを選ぶだけ。あとはIPATで購入。", color: "#fbbf24" },
+              ].map((item) => (
+                <div key={item.step} className="text-center">
+                  <div
+                    className="w-20 h-20 mx-auto mb-6 rounded-2xl border-2 flex items-center justify-center"
+                    style={{
+                      borderColor: `${item.color}50`,
+                      background: `${item.color}15`,
+                      boxShadow: `0 0 30px ${item.color}20`,
+                    }}
+                  >
+                    <item.icon className="h-9 w-9" style={{ color: item.color, filter: `drop-shadow(0 0 8px ${item.color})` }} strokeWidth={1.5} />
+                  </div>
+                  <p className="text-xs font-bold tracking-widest mb-3" style={{ color: item.color }}>STEP {item.step}</p>
+                  <h3 className="text-xl font-black mb-3">{item.title}</h3>
+                  <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+      </div>{/* max-w wrapper end */}
+
+      {/* ━━━ CTA ━━━ */}
+      <section className="relative overflow-hidden py-28 sm:py-36">
+        <div className="absolute inset-0 bg-gradient-hero" />
+        <div className="absolute left-1/2 top-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-tornado-accent opacity-[0.06] blur-[150px]" />
+        <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-8 px-6 text-center">
+          <h2 className="text-3xl font-black sm:text-5xl lg:text-6xl">
             今週のWIN5、<br />
-            <span className="gradient-text">一緒に攻めようぜ。</span>
+            <span className="bg-gradient-to-r from-tornado-accent via-tornado-orange to-tornado-gold bg-clip-text text-transparent">
+              一緒に攻めようぜ。
+            </span>
           </h2>
-          <p className="text-tornado-muted mb-10">完全無料。アカウント不要。今すぐAIに相談できる。</p>
+          <p className="text-lg text-white/50">完全無料。アカウント不要。今すぐAIに相談できる。</p>
           <Link
             href="/chat"
-            className="inline-block px-10 py-4 bg-gradient-accent text-white font-bold text-lg rounded-xl glow-red hover:opacity-90 transition"
+            className="inline-flex items-center justify-center gap-2 rounded-full px-10 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
+            style={{
+              background: "linear-gradient(135deg, #ef4444, #f97316)",
+              boxShadow: "0 0 30px rgba(239,68,68,0.3), 0 0 80px rgba(239,68,68,0.1)",
+            }}
           >
-            🌪️ 無料で始める
+            <Sparkles className="h-5 w-5" />
+            無料で始める
           </Link>
         </div>
       </section>
 
-      {/* ===== FOOTER ===== */}
-      <footer className="py-8 px-4 bg-tornado-deep border-t border-tornado-border/30">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+      {/* ━━━ Footer ━━━ */}
+      <footer className="py-10 px-6 border-t border-white/5 bg-tornado-deep">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
             <span>🌪️</span>
-            <span className="text-sm font-bold">TornadoAI</span>
-            <span className="text-xs text-tornado-muted">WIN5特化AI戦略ツール</span>
+            <span className="text-sm font-black">TornadoAI</span>
+            <span className="text-xs text-white/30">WIN5特化AI戦略ツール</span>
           </div>
-          <div className="flex gap-6 text-xs text-tornado-muted">
+          <div className="flex gap-8 text-xs text-white/30">
             <Link href="/chat" className="hover:text-white transition">AIチャット</Link>
             <Link href="/dashboard" className="hover:text-white transition">ダッシュボード</Link>
           </div>
-          <p className="text-xs text-tornado-muted">&copy; 2026 TornadoAI</p>
+          <p className="text-xs text-white/20">&copy; 2026 TornadoAI</p>
         </div>
       </footer>
-    </main>
-  )
+    </div>
+  );
 }
