@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import AuthGuard from '@/components/auth/AuthGuard'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 import { useWin5Store } from '@/store/win5Store'
@@ -131,7 +132,9 @@ export default function ChatPage() {
       {/* Header */}
       <header className="sticky top-0 z-30 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link href="/" className="text-2xl">🌪️</Link>
+          <Link href="/" className="flex items-center">
+            <Image src="/brand/logo.png" alt="TornadoAI" width={24} height={24} priority />
+          </Link>
           <h1 className="text-lg font-bold">トルネードAI</h1>
         </div>
         <HamburgerMenu />
@@ -141,7 +144,9 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-tornado-muted mt-20">
-            <p className="text-5xl mb-4">🌪️</p>
+            <div className="mb-4 flex justify-center">
+              <Image src="/brand/logo.png" alt="TornadoAI" width={64} height={64} priority />
+            </div>
             <p className="text-lg font-bold mb-2">WIN5の戦略を一緒に考えましょう</p>
             <p className="text-sm mb-6">予算と目標をお伝えいただければ、最適な買い目をご提案します</p>
             <div className="flex flex-wrap gap-2 justify-center">
@@ -165,11 +170,18 @@ export default function ChatPage() {
 
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[85%] px-4 py-3 rounded-2xl whitespace-pre-wrap text-sm leading-relaxed ${
-              msg.role === 'user'
-                ? 'bg-tornado-accent text-white'
-                : 'bg-tornado-card border border-tornado-border text-tornado-text'
-            }`}>
+            {msg.role === 'assistant' && (
+              <div className="mr-2 mt-1 shrink-0">
+                <Image src="/brand/logo.png" alt="AI" width={18} height={18} />
+              </div>
+            )}
+            <div
+              className={`max-w-[85%] px-4 py-3 rounded-2xl whitespace-pre-wrap text-sm leading-relaxed ${
+                msg.role === 'user'
+                  ? 'bg-tornado-accent text-white'
+                  : 'bg-tornado-card border border-tornado-border text-tornado-text'
+              }`}
+            >
               {msg.content}
             </div>
           </div>

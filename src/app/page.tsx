@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   Zap,
@@ -82,7 +83,7 @@ export default function Home() {
       <header className="fixed top-0 w-full z-50 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="text-2xl">🌪️</span>
+            <Image src="/brand/logo.png" alt="TornadoAI" width={28} height={28} priority />
             <span className="text-lg font-black tracking-wide">TornadoAI</span>
           </div>
           <nav className="flex items-center gap-3 sm:gap-5">
@@ -104,86 +105,110 @@ export default function Home() {
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-tornado-accent/[0.04] rounded-full blur-[150px]" />
         <div className="absolute top-1/3 left-1/3 w-[400px] h-[400px] bg-tornado-orange/[0.03] rounded-full blur-[120px]" />
 
-        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-8 inline-flex items-center gap-2 rounded-full border border-tornado-accent/30 bg-tornado-accent/5 px-5 py-2 backdrop-blur-sm"
-          >
-            <Zap className="h-4 w-4 text-tornado-accent" />
-            <span className="text-sm font-medium tracking-wide text-tornado-accent">WIN5 専門 AI戦略ツール</span>
-          </motion.div>
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+            <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="mb-8 inline-flex items-center gap-2 rounded-full border border-tornado-accent/30 bg-tornado-accent/5 px-5 py-2 backdrop-blur-sm"
+              >
+                <Zap className="h-4 w-4 text-tornado-accent" />
+                <span className="text-sm font-medium tracking-wide text-tornado-accent">WIN5 専門 AI戦略ツール</span>
+              </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mb-2 text-4xl leading-none tracking-tight sm:text-7xl lg:text-8xl"
-            style={{ fontWeight: 900 }}
-          >
-            WIN5は、
-            <br />
-            <span className="bg-gradient-to-r from-tornado-accent via-tornado-orange to-tornado-gold bg-clip-text text-transparent">
-              組み合わせで勝つ。
-            </span>
-          </motion.h1>
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="mb-2 text-4xl leading-none tracking-tight sm:text-7xl lg:text-7xl"
+                style={{ fontWeight: 900 }}
+              >
+                WIN5は、
+                <br />
+                <span className="bg-gradient-to-r from-tornado-accent via-tornado-orange to-tornado-gold bg-clip-text text-transparent">
+                  組み合わせで勝つ。
+                </span>
+              </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.5 }}
-            className="mb-12 mt-6 max-w-2xl text-base font-light leading-relaxed text-white/60 md:text-xl"
-          >
-            予算と目標配当を入れるだけ。AIが買い目を自動設計し、被り度・爆発ヒートマップ・1頭飛びで当日まで調整できる。
-          </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.5 }}
+                className="mb-10 mt-6 max-w-2xl text-base font-light leading-relaxed text-white/60 md:text-xl"
+              >
+                予算と目標配当を入れるだけ。AIが買い目を自動設計し、被り度・爆発ヒートマップ・1頭飛びで当日まで調整できる。
+              </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.6 }}
-            className="flex flex-col sm:flex-row items-center gap-4"
-          >
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center gap-2 rounded-full px-9 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
-              style={{
-                background: "linear-gradient(135deg, #ef4444, #f97316)",
-                boxShadow: "0 0 30px rgba(239,68,68,0.3), 0 0 80px rgba(239,68,68,0.1)",
-              }}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.6 }}
+                className="flex flex-col sm:flex-row items-center gap-4 lg:items-start"
+              >
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center gap-2 rounded-full px-9 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
+                  style={{
+                    background: "linear-gradient(135deg, #ef4444, #f97316)",
+                    boxShadow: "0 0 30px rgba(239,68,68,0.3), 0 0 80px rgba(239,68,68,0.1)",
+                  }}
+                >
+                  <Sparkles className="h-5 w-5" />
+                  招待コードでログイン
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/15 bg-white/5 px-8 py-5 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-tornado-orange/50 hover:bg-tornado-orange/10 hover:text-tornado-orange active:scale-95"
+                >
+                  <BarChart3 className="h-5 w-5" />
+                  ダッシュボードを見る
+                </Link>
+              </motion.div>
+
+              {/* Stats */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.9 }}
+                className="mt-12 flex flex-wrap items-center justify-center gap-8 sm:gap-12 lg:justify-start"
+              >
+                {[
+                  { value: "5", label: "レース横断分析" },
+                  { value: "3", label: "シナリオ同時提示" },
+                  { value: "🔥", label: "爆発/被り分析" },
+                ].map((stat) => (
+                  <div key={stat.label} className="text-center lg:text-left">
+                    <p className="text-2xl font-black tracking-tight sm:text-3xl bg-gradient-to-r from-tornado-accent to-tornado-gold bg-clip-text text-transparent">
+                      {stat.value}
+                    </p>
+                    <p className="text-[11px] font-medium tracking-wider text-white/40">{stat.label}</p>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Hero image card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
+              className="mx-auto w-full max-w-xl lg:max-w-none"
             >
-              <Sparkles className="h-5 w-5" />
-              招待コードでログイン
-            </Link>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/15 bg-white/5 px-8 py-5 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-tornado-orange/50 hover:bg-tornado-orange/10 hover:text-tornado-orange active:scale-95"
-            >
-              <BarChart3 className="h-5 w-5" />
-              ダッシュボードを見る
-            </Link>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.9 }}
-            className="mt-14 flex flex-wrap items-center justify-center gap-8 sm:gap-12"
-          >
-            {[
-              { value: "5", label: "レース横断分析" },
-              { value: "3", label: "シナリオ同時提示" },
-              { value: "🔥", label: "爆発/被り分析" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-2xl font-black tracking-tight sm:text-3xl bg-gradient-to-r from-tornado-accent to-tornado-gold bg-clip-text text-transparent">
-                  {stat.value}
-                </p>
-                <p className="text-[11px] font-medium tracking-wider text-white/40">{stat.label}</p>
+              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] p-2 shadow-[0_20px_80px_-30px_rgba(239,68,68,0.25)]">
+                <div className="absolute inset-0 bg-gradient-to-br from-tornado-accent/10 via-transparent to-tornado-orange/10" />
+                <Image
+                  src="/brand/hero.webp"
+                  alt="TornadoAI ダッシュボード"
+                  width={1200}
+                  height={675}
+                  priority
+                  className="relative w-full h-auto rounded-2xl"
+                />
               </div>
-            ))}
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
 
         {/* Scroll indicator */}
@@ -519,7 +544,7 @@ export default function Home() {
       <footer className="py-10 px-6 border-t border-white/5 bg-tornado-deep">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <span>🌪️</span>
+            <Image src="/brand/logo.png" alt="TornadoAI" width={18} height={18} />
             <span className="text-sm font-black">TornadoAI</span>
             <span className="text-xs text-white/30">WIN5特化AI戦略ツール</span>
           </div>
