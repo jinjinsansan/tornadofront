@@ -133,7 +133,7 @@ export default function ChatPage() {
       <header className="sticky top-0 z-30 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center">
-            <Image src="/brand/logo.png" alt="TornadoAI" width={24} height={24} priority />
+            <Image src="/brand/logo.png" alt="TornadoAI" width={32} height={32} className="rounded-lg" priority />
           </Link>
           <h1 className="text-lg font-bold">トルネードAI</h1>
         </div>
@@ -172,7 +172,7 @@ export default function ChatPage() {
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {msg.role === 'assistant' && (
               <div className="mr-2 mt-1 shrink-0">
-                <Image src="/brand/logo.png" alt="AI" width={18} height={18} />
+                <Image src="/brand/logo.png" alt="AI" width={24} height={24} className="rounded-md" />
               </div>
             )}
             <div

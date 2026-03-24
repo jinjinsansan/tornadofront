@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { BarChart3, MessageCircle, Target, Layers, Activity, Zap, Shield, ChevronRight } from 'lucide-react'
 import AuthGuard from '@/components/auth/AuthGuard'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
@@ -30,7 +31,7 @@ export default function MyPage() {
         <header className="sticky top-0 z-30 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5">
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🌪️</span>
+              <Link href="/"><Image src="/brand/logo.png" alt="TornadoAI" width={32} height={32} className="rounded-lg" /></Link>
               <span className="text-lg font-black">TornadoAI</span>
             </div>
             <HamburgerMenu />

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
 import { Home, User, BarChart3, MessageCircle, LogOut, X, ChevronRight } from 'lucide-react'
 import styles from './HamburgerMenu.module.css'
@@ -98,7 +99,7 @@ export default function HamburgerMenu() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg">🌪️</span>
+                    <Image src="/brand/logo.png" alt="TornadoAI" width={28} height={28} className="rounded-md" />
                     <span className="font-black text-sm">TornadoAI</span>
                   </div>
                   <button
@@ -115,12 +116,7 @@ export default function HamburgerMenu() {
                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}
                 >
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs"
-                    style={{ background: 'linear-gradient(135deg, #ef4444, #f97316)' }}
-                  >
-                    🌪️
-                  </div>
+                  <Image src="/brand/logo.png" alt="TornadoAI" width={32} height={32} className="rounded-full" />
                   <div>
                     <p className="text-xs font-bold text-white/80">Premium会員</p>
                     <p className="text-[10px]" style={{ color: '#fbbf24' }}>TornadoAI Member</p>

@@ -83,7 +83,7 @@ export default function Home() {
       <header className="fixed top-0 w-full z-50 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Image src="/brand/logo.png" alt="TornadoAI" width={28} height={28} priority />
+            <Image src="/brand/logo.png" alt="TornadoAI" width={36} height={36} className="rounded-lg" priority />
             <span className="text-lg font-black tracking-wide">TornadoAI</span>
           </div>
           <nav className="flex items-center gap-3 sm:gap-5">
@@ -544,7 +544,7 @@ export default function Home() {
       <footer className="py-10 px-6 border-t border-white/5 bg-tornado-deep">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <Image src="/brand/logo.png" alt="TornadoAI" width={18} height={18} />
+            <Image src="/brand/logo.png" alt="TornadoAI" width={28} height={28} className="rounded-md" />
             <span className="text-sm font-black">TornadoAI</span>
             <span className="text-xs text-white/30">WIN5特化AI戦略ツール</span>
           </div>

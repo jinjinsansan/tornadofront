@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import AuthGuard from '@/components/auth/AuthGuard'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 import { useWin5Store } from '@/store/win5Store'
@@ -443,7 +444,7 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="sticky top-0 z-30 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link href="/" className="text-2xl">🌪️</Link>
+          <Link href="/"><Image src="/brand/logo.png" alt="TornadoAI" width={32} height={32} className="rounded-lg" /></Link>
           <h1 className="text-lg font-bold">WIN5 ダッシュボード</h1>
         </div>
         <HamburgerMenu />
