@@ -75,6 +75,15 @@ export default function MyPage() {
             <p className="text-xs text-white/40 mt-1">保存したパターンを比較・確認できます</p>
           </Link>
 
+          <Link
+            href="/results"
+            className="block rounded-2xl border border-white/5 p-5 hover:border-white/10 transition"
+            style={{ background: 'linear-gradient(180deg, #111827, #0f172a)' }}
+          >
+            <p className="text-sm font-bold">📚 過去WIN5</p>
+            <p className="text-xs text-white/40 mt-1">過去の配当・キャリーを確認できます</p>
+          </Link>
+
           {/* Features */}
           <div className="rounded-2xl border border-white/5 overflow-hidden" style={{ background: 'linear-gradient(180deg, #111827, #0f172a)' }}>
             <div className="px-5 pt-5 pb-3">
