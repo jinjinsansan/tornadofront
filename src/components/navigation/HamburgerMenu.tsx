@@ -42,26 +42,24 @@ export default function HamburgerMenu() {
         <span className="block w-5 h-[2px] bg-white/80 rounded-full" />
       </button>
 
-      {/* Overlay — always rendered, opacity transition */}
+      {/* Full-screen overlay — blocks everything behind */}
       <div
         onClick={() => setOpen(false)}
-        className="fixed inset-0 bg-black/70 transition-opacity duration-300"
+        className="fixed inset-0 transition-all duration-300"
         style={{
           zIndex: 9998,
-          opacity: open ? 1 : 0,
+          background: open ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0)',
           pointerEvents: open ? 'auto' : 'none',
         }}
       />
 
-      {/* Panel — always rendered, transform transition */}
+      {/* Panel — full width on mobile, 320px on desktop */}
       <div
-        className="fixed top-0 right-0 h-full w-[280px] transition-transform duration-300 ease-out"
+        className="fixed top-0 right-0 h-full w-full sm:w-[320px] transition-transform duration-300 ease-out overflow-hidden"
         style={{
           zIndex: 9999,
           transform: open ? 'translateX(0)' : 'translateX(100%)',
           background: '#0d1117',
-          borderLeft: '1px solid rgba(255,255,255,0.06)',
-          boxShadow: open ? '-10px 0 40px rgba(0,0,0,0.5)' : 'none',
         }}
       >
         {/* Header */}
