@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import AuthGuard from '@/components/auth/AuthGuard'
+import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -82,12 +84,15 @@ export default function DashboardPage() {
   const overallDesc = totalVolatility >= 20 ? '🔴 大荒れ週' : totalVolatility >= 15 ? '🟠 荒れ模様' : totalVolatility >= 12 ? '🟡 やや混戦' : '🔵 やや堅め'
 
   return (
+    <AuthGuard>
     <div className="min-h-screen max-w-2xl mx-auto pb-20">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-tornado-bg border-b border-tornado-border px-4 py-3 flex items-center gap-3">
-        <Link href="/" className="text-2xl">🌪️</Link>
-        <h1 className="text-lg font-bold">WIN5 ダッシュボード</h1>
-        <Link href="/chat" className="ml-auto text-sm text-tornado-accent hover:underline">💬 AIに相談</Link>
+      <header className="sticky top-0 z-30 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Link href="/" className="text-2xl">🌪️</Link>
+          <h1 className="text-lg font-bold">WIN5 ダッシュボード</h1>
+        </div>
+        <HamburgerMenu />
       </header>
 
       {loading ? (
@@ -233,5 +238,6 @@ export default function DashboardPage() {
         </div>
       )}
     </div>
+    </AuthGuard>
   )
 }

@@ -86,9 +86,9 @@ export default function Home() {
             <span className="text-lg font-black tracking-wide">TornadoAI</span>
           </div>
           <nav className="flex items-center gap-3 sm:gap-5">
-            <Link href="/dashboard" className="hidden sm:inline text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
+            <Link href="/login" className="hidden sm:inline text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
             <Link
-              href="/chat"
+              href="/login"
               className="text-sm px-5 py-2.5 bg-gradient-to-r from-tornado-accent to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
             >
               AIに相談
@@ -145,7 +145,7 @@ export default function Home() {
             className="flex flex-col sm:flex-row items-center gap-4"
           >
             <Link
-              href="/chat"
+              href="/login"
               className="inline-flex items-center justify-center gap-2 rounded-full px-9 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
               style={{
                 background: "linear-gradient(135deg, #ef4444, #f97316)",
@@ -156,7 +156,7 @@ export default function Home() {
               無料で始める
             </Link>
             <Link
-              href="/dashboard"
+              href="/login"
               className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/15 bg-white/5 px-8 py-5 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-tornado-orange/50 hover:bg-tornado-orange/10 hover:text-tornado-orange active:scale-95"
             >
               <BarChart3 className="h-5 w-5" />
@@ -466,7 +466,7 @@ export default function Home() {
           </h2>
           <p className="text-lg text-white/50">完全無料。アカウント不要。今すぐAIに相談できる。</p>
           <Link
-            href="/chat"
+            href="/login"
             className="inline-flex items-center justify-center gap-2 rounded-full px-10 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
             style={{
               background: "linear-gradient(135deg, #ef4444, #f97316)",
@@ -488,8 +488,8 @@ export default function Home() {
             <span className="text-xs text-white/30">WIN5特化AI戦略ツール</span>
           </div>
           <div className="flex gap-8 text-xs text-white/30">
-            <Link href="/chat" className="hover:text-white transition">AIチャット</Link>
-            <Link href="/dashboard" className="hover:text-white transition">ダッシュボード</Link>
+            <Link href="/login" className="hover:text-white transition">AIチャット</Link>
+            <Link href="/login" className="hover:text-white transition">ダッシュボード</Link>
           </div>
           <p className="text-xs text-white/20">&copy; 2026 TornadoAI</p>
         </div>

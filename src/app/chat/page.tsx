@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import AuthGuard from '@/components/auth/AuthGuard'
+import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -105,13 +107,15 @@ export default function ChatPage() {
   }
 
   return (
+    <AuthGuard>
     <div className="min-h-screen flex flex-col max-w-2xl mx-auto">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-tornado-bg border-b border-tornado-border px-4 py-3 flex items-center gap-3">
-        <Link href="/" className="text-2xl">🌪️</Link>
-        <h1 className="text-lg font-bold">トルネードAI</h1>
-        <span className="text-tornado-muted text-sm">WIN5戦略AI</span>
-        <Link href="/dashboard" className="ml-auto text-sm text-tornado-accent hover:underline">📊 ダッシュボード</Link>
+      <header className="sticky top-0 z-30 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Link href="/" className="text-2xl">🌪️</Link>
+          <h1 className="text-lg font-bold">トルネードAI</h1>
+        </div>
+        <HamburgerMenu />
       </header>
 
       {/* Messages */}
@@ -200,5 +204,6 @@ export default function ChatPage() {
         </div>
       </div>
     </div>
+    </AuthGuard>
   )
 }
