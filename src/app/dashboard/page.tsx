@@ -262,6 +262,35 @@ export default function DashboardPage() {
 
   const live = calcFromTickets(customTickets)
 
+  const survival = (() => {
+    let cum = 1
+    const per = races.map(r => {
+      const selectedNums = customTickets[`R${r.race_order}`] || []
+      const p = r.horses
+        .filter(h => selectedNums.includes(h.horse_number))
+        .reduce((s, h) => s + (h.ai_win_prob || 0), 0)
+      const capped = Math.min(p, 0.95)
+      cum *= capped
+      return { race_order: r.race_order, p: capped, cum }
+    })
+    return { per, overall: per.length ? per[per.length - 1].cum : 0 }
+  })()
+
+  const explosion = (() => {
+    const picks = races.map(r => {
+      const selectedNums = customTickets[`R${r.race_order}`] || []
+      const selected = r.horses.filter(h => selectedNums.includes(h.horse_number))
+      if (selected.length === 0) return null
+      const withOdds = selected.filter(h => (h.odds || 0) > 0)
+      const best = (withOdds.length > 0 ? withOdds : selected).sort((a, b) => (b.odds || 0) - (a.odds || 0))[0]
+      return { race_order: r.race_order, horse_number: best.horse_number, horse_name: best.horse_name, odds: best.odds || 0 }
+    })
+    if (picks.some(p => !p)) return null
+    const oddsProd = (picks as any[]).reduce((acc, p) => acc * ((p.odds || 0) > 0 ? p.odds : 20), 1)
+    const payout = Math.floor(oddsProd * WIN5_PRICE * 0.7)
+    return { picks: picks as any[], payout }
+  })()
+
   return (
     <AuthGuard>
     <div className="min-h-screen max-w-2xl mx-auto pb-20">
@@ -299,6 +328,43 @@ export default function DashboardPage() {
               <p className="text-2xl font-bold text-tornado-accent">{totalVolatility}/25</p>
             </div>
           </div>
+
+          {/* Strategy / Survival / Explosion */}
+          {Object.keys(customTickets).length > 0 && (
+            <div className="bg-tornado-card border border-tornado-border rounded-xl p-4 space-y-2">
+              <p className="text-sm font-bold">🧭 戦略サマリー</p>
+              <div className="text-xs text-tornado-muted space-y-1">
+                <p>
+                  生存率（目安）: <span className="text-white">{(survival.overall * 100).toFixed(1)}%</span>
+                </p>
+                <p className="flex flex-wrap gap-x-3 gap-y-1">
+                  {survival.per.map(x => (
+                    <span key={x.race_order}>
+                      R{x.race_order}: {(x.p * 100).toFixed(1)}% → 累計 {(x.cum * 100).toFixed(1)}%
+                    </span>
+                  ))}
+                </p>
+                {explosion && (
+                  <p>
+                    爆発ルート（目安）: <span className="text-white">〜¥{explosion.payout.toLocaleString()}</span>
+                    <span className="ml-2">
+                      {explosion.picks.map(p => `R${p.race_order}:${p.horse_number}`).join(' / ')}
+                    </span>
+                  </p>
+                )}
+                {carryover > 0 && (
+                  <p style={{ color: '#fbbf24' }}>
+                    キャリーあり：点数を広げても期待値が上がりやすい週です（最新で更新→再生成推奨）。
+                  </p>
+                )}
+                {survival.per.some(x => x.p < 0.25) && (
+                  <p className="text-red-400">
+                    ⚠️ どこかのレースで生存率が低めです。波乱度が高いレースは頭数を広げるのがおすすめです。
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* 5 Races */}
           {races.map(race => (
