@@ -13,9 +13,14 @@
 
 .overlay {
   position: fixed;
-  inset: 0;
-  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
   background: rgba(6, 11, 24, 0.96);
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 .menuContainer {
@@ -23,9 +28,9 @@
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 1001;
-  width: 100%;
-  max-width: 320px;
+  z-index: 10000;
+  width: min(100vw, 340px);
+  min-width: 280px;
   background: #0d1117;
   border-left: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 25px 60px -20px rgba(0, 0, 0, 0.6);
@@ -37,7 +42,8 @@
 
 @media (max-width: 639px) {
   .menuContainer {
-    max-width: 100%;
+    width: 100vw;
+    min-width: 100vw;
   }
 }
 
