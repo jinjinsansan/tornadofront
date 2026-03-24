@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
-import { Home, User, BarChart3, MessageCircle, LogOut, X, ChevronRight } from 'lucide-react'
+import { Home, User, BarChart3, MessageCircle, LogOut, X, ChevronRight, FileText, History } from 'lucide-react'
 import styles from './HamburgerMenu.module.css'
 
 export default function HamburgerMenu() {
@@ -14,24 +14,18 @@ export default function HamburgerMenu() {
   const router = useRouter()
   const pathname = usePathname()
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
     if (!open) return
-
     const prevOverflow = document.body.style.overflow
     const prevPaddingRight = document.body.style.paddingRight
-
     document.body.style.overflow = 'hidden'
-    // iOS/Safari/WebView may report unstable viewport widths; cap scrollbar compensation to desktop only.
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
     const isDesktop = window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 640
     if (isDesktop && scrollbarWidth > 0 && scrollbarWidth < 40) {
       document.body.style.paddingRight = `${scrollbarWidth}px`
     }
-
     return () => {
       document.body.style.overflow = prevOverflow
       document.body.style.paddingRight = prevPaddingRight
@@ -40,16 +34,12 @@ export default function HamburgerMenu() {
 
   useEffect(() => {
     if (!open) return
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
-    }
+    const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [open])
 
-  useEffect(() => {
-    setOpen(false)
-  }, [pathname])
+  useEffect(() => { setOpen(false) }, [pathname])
 
   const handleLogout = () => {
     localStorage.removeItem('tornado_token')
@@ -58,135 +48,155 @@ export default function HamburgerMenu() {
     router.push('/')
   }
 
-  const links = [
+  const active = (href: string) => pathname === href
+
+  const mainLinks = [
     { href: '/', label: 'ホーム', icon: Home },
     { href: '/mypage', label: 'マイページ', icon: User },
     { href: '/dashboard', label: 'ダッシュボード', icon: BarChart3 },
     { href: '/chat', label: 'AIチャット', icon: MessageCircle },
   ]
 
+  const subLinks = [
+    { href: '/history', label: '保存した買い目', icon: FileText },
+    { href: '/results', label: '過去WIN5結果', icon: History },
+  ]
+
   return (
     <>
-      {/* Hamburger button */}
       <button
         onClick={() => setOpen(v => !v)}
         className="relative z-50 w-10 h-10 flex flex-col items-center justify-center gap-[5px]"
         aria-label="メニュー"
         aria-expanded={open}
-        aria-controls="tornado-hamburger-menu"
       >
         <span className="block w-5 h-[2px] bg-white/80 rounded-full" />
         <span className="block w-5 h-[2px] bg-white/80 rounded-full" />
         <span className="block w-5 h-[2px] bg-white/80 rounded-full" />
       </button>
 
-      {!mounted || !open
-        ? null
-        : createPortal(
-          <>
-            {/* Overlay */}
-            <div className={styles.overlay} onClick={() => setOpen(false)} />
+      {!mounted || !open ? null : createPortal(
+        <>
+          <div className={styles.overlay} onClick={() => setOpen(false)} />
 
-            {/* Panel */}
-            <div id="tornado-hamburger-menu" className={styles.menuContainer} role="dialog" aria-modal="true">
-              {/* Header */}
-              <div
-                className="px-5 pt-5 pb-4"
-                style={{
-                  background: 'linear-gradient(180deg, #151c2c, #0d1117)',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
-                }}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Image src="/brand/logo.png" alt="TornadoAI" width={28} height={28} className="rounded-md" />
-                    <span className="font-black text-sm">TornadoAI</span>
-                  </div>
-                  <button
-                    onClick={() => setOpen(false)}
-                    className="p-1.5 rounded-lg hover:bg-white/5 transition"
-                    aria-label="閉じる"
-                  >
-                    <X className="w-4 h-4 text-white/40" />
-                  </button>
-                </div>
-
-                {/* User badge */}
-                <div
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}
-                >
-                  <Image src="/brand/logo.png" alt="TornadoAI" width={32} height={32} className="rounded-full" />
-                  <div>
-                    <p className="text-xs font-bold text-white/80">Premium会員</p>
-                    <p className="text-[10px]" style={{ color: '#fbbf24' }}>TornadoAI Member</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Menu */}
-              <div className={`${styles.menuBody} px-3 py-4`}>
-                <p className="px-3 mb-2 text-[9px] font-bold tracking-[0.25em] text-white/15 uppercase">Menu</p>
-
-                <nav className="space-y-0.5">
-                  {links.map(link => {
-                    const isActive = pathname === link.href
-                    const Icon = link.icon
-                    return (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setOpen(false)}
-                        className="flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors duration-150"
-                        style={isActive ? {
-                          background: 'rgba(239,68,68,0.08)',
-                          borderLeft: '2px solid #ef4444',
-                        } : {}}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Icon
-                            className="w-4 h-4"
-                            style={{ color: isActive ? '#ef4444' : 'rgba(255,255,255,0.3)' }}
-                            strokeWidth={1.5}
-                          />
-                          <span
-                            className="text-[13px] font-medium"
-                            style={{ color: isActive ? '#ef4444' : 'rgba(255,255,255,0.7)' }}
-                          >
-                            {link.label}
-                          </span>
-                        </div>
-                        <ChevronRight className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.08)' }} />
-                      </Link>
-                    )
-                  })}
-                </nav>
-
-                {/* Divider */}
-                <div className="my-3 mx-2 h-px" style={{ background: 'rgba(255,255,255,0.04)' }} />
-
-                {/* Logout */}
+          <div className={styles.menuContainer} role="dialog" aria-modal="true">
+            {/* ── Header (Dlogic pattern) ── */}
+            <div style={{
+              background: 'linear-gradient(to right, #1A1A24, #14141E)',
+              padding: '1.5rem',
+              borderBottom: '1px solid rgba(43, 49, 57, 0.3)',
+            }}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-[#EAECEF]">メニュー</h2>
                 <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-colors duration-150 w-full"
-                  style={{ color: 'rgba(239,68,68,0.6)' }}
+                  onClick={() => setOpen(false)}
+                  className="p-2 rounded-lg transition-colors"
+                  style={{ background: 'rgba(43,49,57,0.3)' }}
                 >
-                  <LogOut className="w-4 h-4" strokeWidth={1.5} />
-                  <span>ログアウト</span>
+                  <X className="w-5 h-5 text-[#B7BDC6]" />
                 </button>
               </div>
 
-              {/* Footer */}
-              <div
-                className="px-5 py-3 text-center"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}
-              >
-                <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.1)' }}>&copy; 2026 TornadoAI</p>
+              <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: 'rgba(26,26,36,0.5)' }}>
+                <Image
+                  src="/brand/logo.png" alt="" width={40} height={40}
+                  className="rounded-full"
+                  style={{ border: '2px solid rgba(239,68,68,0.3)' }}
+                />
+                <div>
+                  <p className="text-sm font-medium text-[#EAECEF]">Premium会員</p>
+                  <p className="text-xs flex items-center gap-1" style={{ color: '#ef4444' }}>
+                    ⚡ TornadoAI Member
+                  </p>
+                </div>
               </div>
             </div>
-          </>,
-          document.body,
-        )}
+
+            {/* ── Body ── */}
+            <div className={styles.menuBody}>
+              {/* Main */}
+              <div className="px-4 pt-4 pb-2">
+                <p className="text-xs font-bold uppercase tracking-wider px-4 mb-2" style={{ color: 'rgba(239,68,68,0.6)' }}>
+                  TornadoAI
+                </p>
+                {mainLinks.map(link => {
+                  const Icon = link.icon
+                  const a = active(link.href)
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setOpen(false)}
+                      className={`flex items-center justify-between p-4 rounded-lg mb-1 transition-all duration-200 ${
+                        a ? 'bg-gradient-to-r from-[#ef4444]/10 to-transparent border-l-4 border-[#ef4444]'
+                          : 'hover:bg-[#1A1A24] hover:translate-x-1'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className="w-5 h-5" style={{ color: a ? '#ef4444' : '#B7BDC6' }} strokeWidth={1.5} />
+                        <span className={`text-base font-medium ${a ? 'text-[#ef4444]' : 'text-[#EAECEF]'}`}>{link.label}</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4" style={{ color: a ? '#ef4444' : '#B7BDC6' }} />
+                    </Link>
+                  )
+                })}
+              </div>
+
+              {/* Divider */}
+              <div className="mx-6 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(239,68,68,0.3), transparent)' }} />
+
+              {/* Sub */}
+              <div className="px-4 py-2">
+                <p className="text-xs font-bold uppercase tracking-wider px-4 mb-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                  データ
+                </p>
+                {subLinks.map(link => {
+                  const Icon = link.icon
+                  const a = active(link.href)
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setOpen(false)}
+                      className={`flex items-center justify-between p-4 rounded-lg mb-1 transition-all duration-200 ${
+                        a ? 'bg-gradient-to-r from-[#fbbf24]/10 to-transparent border-l-4 border-[#fbbf24]'
+                          : 'hover:bg-[#1A1A24] hover:translate-x-1'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className="w-5 h-5" style={{ color: a ? '#fbbf24' : '#B7BDC6' }} strokeWidth={1.5} />
+                        <span className={`text-base font-medium ${a ? 'text-[#fbbf24]' : 'text-[#EAECEF]'}`}>{link.label}</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4" style={{ color: a ? '#fbbf24' : '#B7BDC6' }} />
+                    </Link>
+                  )
+                })}
+              </div>
+
+              {/* Divider */}
+              <div className="mx-6 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(239,68,68,0.3), transparent)' }} />
+
+              {/* Logout */}
+              <div className="px-4 py-2">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 p-4 rounded-lg mb-1 w-full transition-all duration-200 hover:translate-x-1"
+                  style={{ background: 'rgba(246,70,93,0.06)' }}
+                >
+                  <LogOut className="w-5 h-5 text-[#F6465D]" strokeWidth={1.5} />
+                  <span className="text-base font-medium text-[#F6465D]">ログアウト</span>
+                </button>
+              </div>
+            </div>
+
+            {/* ── Footer ── */}
+            <div className="px-6 py-4 text-center">
+              <p className="text-xs text-[#848E9C]">&copy; 2026 TornadoAI</p>
+            </div>
+          </div>
+        </>,
+        document.body,
+      )}
     </>
   )
 }
