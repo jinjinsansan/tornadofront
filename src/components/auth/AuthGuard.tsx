@@ -61,8 +61,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-tornado-deep">
-        <div className="text-tornado-muted animate-pulse">🌪️ 読み込み中...</div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#050608] gap-4">
+        <div className="tornado-spinner" />
+        <p className="text-sm text-[#848E9C]">読み込み中...</p>
       </div>
     )
   }

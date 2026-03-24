@@ -184,13 +184,9 @@ export default function ChatPage() {
         {/* Loading indicator */}
         {toolStatus && (
           <div className="flex justify-start">
-            <div className="bg-[#0B0E11] border border-[#2B3139] rounded-2xl px-4 py-3 min-w-[220px]">
-              <div className="flex items-center gap-2.5">
-                <div className="flex gap-1">
-                  <div className="w-1.5 h-1.5 bg-[#ef4444] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-1.5 h-1.5 bg-[#f97316] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-1.5 h-1.5 bg-[#fbbf24] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
+            <div className="bg-[#0B0E11] border border-[#2B3139] rounded-2xl px-4 py-3.5 min-w-[220px]">
+              <div className="flex items-center gap-3">
+                <div className="tornado-spinner" style={{ width: 22, height: 22, borderWidth: 2 }} />
                 <span className="text-sm text-[#848E9C]">{toolStatus}</span>
               </div>
             </div>
