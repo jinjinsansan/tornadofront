@@ -53,6 +53,7 @@ const WIN5_PRICE = 100
 export default function DashboardPage() {
   const [races, setRaces] = useState<Race[]>([])
   const [loading, setLoading] = useState(true)
+  const [carryover, setCarryover] = useState(0)
   const budget = useWin5Store(s => s.budget)
   const setBudget = useWin5Store(s => s.setBudget)
   const targetPayout = useWin5Store(s => s.targetPayout)
@@ -76,6 +77,13 @@ export default function DashboardPage() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    fetch(`${API}/api/win5/carryover`)
+      .then(r => r.json())
+      .then(data => setCarryover(Number(data.carryover || 0)))
+      .catch(() => setCarryover(0))
   }, [])
 
   const toggleHorse = (raceOrder: number, horseNumber: number) => {
@@ -232,6 +240,11 @@ export default function DashboardPage() {
             <div>
               <p className="text-sm text-tornado-muted">今週のWIN5</p>
               <p className="text-lg font-bold">{overallDesc}</p>
+              {carryover > 0 && (
+                <p className="text-xs mt-1" style={{ color: '#fbbf24' }}>
+                  キャリーオーバー: ¥{carryover.toLocaleString()}
+                </p>
+              )}
             </div>
             <div className="text-right">
               <p className="text-sm text-tornado-muted">総合波乱度</p>
