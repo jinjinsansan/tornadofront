@@ -9,13 +9,17 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   useEffect(() => {
-    const token = localStorage.getItem('tornado_token')
-    if (!token) {
-      router.replace('/login')
-      return
-    }
-    setIsAuth(true)
+    try {
+      const token = localStorage.getItem('tornado_token')
+      if (token) {
+        setIsAuth(true)
+        setChecking(false)
+        return
+      }
+    } catch {}
+    // No token
     setChecking(false)
+    router.replace('/login')
   }, [router])
 
   if (checking) {
