@@ -119,14 +119,14 @@ export default function ChatPage() {
         {messages.length === 0 && (
           <div className="text-center text-tornado-muted mt-20">
             <p className="text-5xl mb-4">🌪️</p>
-            <p className="text-lg font-bold mb-2">WIN5の戦略、一緒に考えようぜ</p>
-            <p className="text-sm mb-6">予算と目標を言えば最適な買い目を出す</p>
+            <p className="text-lg font-bold mb-2">WIN5の戦略を一緒に考えましょう</p>
+            <p className="text-sm mb-6">予算と目標をお伝えいただければ、最適な買い目をご提案します</p>
             <div className="flex flex-wrap gap-2 justify-center">
               {[
                 { label: '🌪️ 今週のWIN5', text: '今週のWIN5は？' },
                 { label: '🎯 買い目出して', text: '予算5000円で買い目出して' },
                 { label: '📊 3シナリオ', text: '3シナリオ見せて' },
-                { label: '💰 500万狙い', text: '500万狙いたいんだけど' },
+                { label: '💰 500万狙い', text: '500万狙いたいです' },
               ].map(q => (
                 <button
                   key={q.text}

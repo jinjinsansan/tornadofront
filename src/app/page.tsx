@@ -68,8 +68,8 @@ const features = [
     subtitle: "WIN5専門AIに、何でも聞ける",
     desc: "「高松宮記念は荒れる？」「穴狙いで組んで」「R3だけ1頭に絞りたい」——自然言語で聞けば、WIN5の文脈に完全に接地したAIが即座に回答。買い目の調整も、戦略の相談も、全部チャットで完結する。",
     chatMessages: [
-      { role: "user", text: "予算5000円で500万狙いたいんだけど" },
-      { role: "ai", text: "おっ、攻めるな。波乱度的にR3とR5を広げて、堅いR2は1頭で絞るのがベストだ。48点で組むぜ。" },
+      { role: "user", text: "予算5000円で500万狙いたいです" },
+      { role: "ai", text: "いいですね。波乱度的にR3とR5を広げて、堅いR2は1頭に絞るのがベストです。48点の組み合わせでご提案しますね。" },
     ],
   },
 ];
@@ -461,7 +461,7 @@ export default function Home() {
           <h2 className="text-3xl font-black sm:text-5xl lg:text-6xl">
             今週のWIN5、<br />
             <span className="bg-gradient-to-r from-tornado-accent via-tornado-orange to-tornado-gold bg-clip-text text-transparent">
-              一緒に攻めようぜ。
+              一緒に戦略を立てませんか。
             </span>
           </h2>
           <p className="text-lg text-white/50">完全無料。アカウント不要。今すぐAIに相談できる。</p>
