@@ -99,7 +99,7 @@ export default function Home() {
       </header>
 
       {/* ━━━ Hero ━━━ */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
+      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden pt-20 sm:pt-24">
         {/* Background effects */}
         <div className="absolute inset-0 bg-gradient-hero" />
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-tornado-accent/[0.04] rounded-full blur-[150px]" />

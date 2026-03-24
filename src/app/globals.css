@@ -2,10 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  /* iOS Safari: use actual visible height instead of 100vh */
+  height: -webkit-fill-available;
+}
+
 body {
   background: #060b18;
   color: #e2e8f0;
   font-family: -apple-system, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  /* iOS safe area padding */
+  padding-top: env(safe-area-inset-top);
 }
 
 /* Gradient text */
