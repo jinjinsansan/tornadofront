@@ -57,6 +57,12 @@ type SimResult = {
   }>
 }
 
+type OverlapResponse = {
+  date: string
+  total_tickets: number
+  overlap: Record<string, Array<{ horse_number: number; count: number; ratio: number }>>
+}
+
 const STARS = ['', '★', '★★', '★★★', '★★★★', '★★★★★']
 const VOL_COLORS = ['', 'text-blue-400', 'text-cyan-400', 'text-yellow-400', 'text-orange-400', 'text-red-500']
 const VOL_BG = ['', 'border-blue-800', 'border-cyan-800', 'border-yellow-800', 'border-orange-800', 'border-red-800']
@@ -81,6 +87,9 @@ export default function DashboardPage() {
   const [saveMsg, setSaveMsg] = useState('')
   const [simulating, setSimulating] = useState(false)
   const [sim, setSim] = useState<SimResult | null>(null)
+  const [overlapLoading, setOverlapLoading] = useState(false)
+  const [overlap, setOverlap] = useState<OverlapResponse | null>(null)
+  const [overlapMsg, setOverlapMsg] = useState('')
   const [expandedRace, setExpandedRace] = useState<number | null>(null)
 
   useEffect(() => {
@@ -257,10 +266,54 @@ export default function DashboardPage() {
     }
   }
 
+  const runOverlap = async () => {
+    const token = localStorage.getItem('tornado_token') || ''
+    if (!token) {
+      setOverlapMsg('ログインが必要です')
+      return
+    }
+    if (Object.keys(customTickets).length === 0) return
+
+    setOverlapLoading(true)
+    setOverlapMsg('')
+    try {
+      const res = await fetch(`${API}/api/win5/overlap`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tickets: customTickets }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setOverlapMsg(data.error || '取得に失敗しました')
+        setOverlap(null)
+      } else {
+        setOverlap(data)
+      }
+    } catch {
+      setOverlapMsg('通信エラーが発生しました')
+    } finally {
+      setOverlapLoading(false)
+    }
+  }
+
   const totalVolatility = races.reduce((sum, r) => sum + r.volatility_rank, 0)
   const overallDesc = totalVolatility >= 20 ? '🔴 大荒れ週' : totalVolatility >= 15 ? '🟠 荒れ模様' : totalVolatility >= 12 ? '🟡 やや混戦' : '🔵 やや堅め'
 
   const live = calcFromTickets(customTickets)
+
+  const perRaceDiagnostics = races.map(r => {
+    const selectedNums = customTickets[`R${r.race_order}`] || []
+    const selected = r.horses.filter(h => selectedNums.includes(h.horse_number))
+    const valueAvg = selected.length ? selected.reduce((s, h) => s + (h.value_score || 0), 0) / selected.length : 0
+    const coverage = Math.min(
+      selected.reduce((s, h) => s + (h.ai_win_prob || 0), 0),
+      0.95,
+    )
+    return { race_order: r.race_order, selectedCount: selected.length, valueAvg, coverage }
+  })
 
   const survival = (() => {
     let cum = 1
@@ -289,6 +342,44 @@ export default function DashboardPage() {
     const oddsProd = (picks as any[]).reduce((acc, p) => acc * ((p.odds || 0) > 0 ? p.odds : 20), 1)
     const payout = Math.floor(oddsProd * WIN5_PRICE * 0.7)
     return { picks: picks as any[], payout }
+  })()
+
+  const explosionRoutes = (() => {
+    if (Object.keys(customTickets).length === 0) return []
+    const candidates = races.map(r => {
+      const selectedNums = customTickets[`R${r.race_order}`] || []
+      const selected = r.horses
+        .filter(h => selectedNums.includes(h.horse_number))
+        .map(h => ({ ...h, effOdds: (h.odds || 0) > 0 ? h.odds : 20 }))
+        .sort((a, b) => b.effOdds - a.effOdds)
+        .slice(0, 3)
+      return { race_order: r.race_order, horses: selected }
+    })
+    if (candidates.some(c => c.horses.length === 0)) return []
+
+    let routes: Array<{ picks: Array<{ race_order: number; horse_number: number; horse_name: string; odds: number }>; oddsProd: number }> = [
+      { picks: [], oddsProd: 1 },
+    ]
+    for (const c of candidates) {
+      const next: typeof routes = []
+      for (const r0 of routes) {
+        for (const h of c.horses) {
+          next.push({
+            picks: [...r0.picks, { race_order: c.race_order, horse_number: h.horse_number, horse_name: h.horse_name, odds: h.effOdds }],
+            oddsProd: r0.oddsProd * h.effOdds,
+          })
+        }
+      }
+      routes = next.slice(0, 5000)
+    }
+
+    return routes
+      .map(r => ({
+        picks: r.picks,
+        payout: Math.floor(r.oddsProd * WIN5_PRICE * 0.7),
+      }))
+      .sort((a, b) => b.payout - a.payout)
+      .slice(0, 5)
   })()
 
   return (
@@ -362,7 +453,38 @@ export default function DashboardPage() {
                     ⚠️ どこかのレースで生存率が低めです。波乱度が高いレースは頭数を広げるのがおすすめです。
                   </p>
                 )}
+                {perRaceDiagnostics.some(d => d.selectedCount === 0) && (
+                  <p className="text-red-400">
+                    ⚠️ 未選択のレースがあります（このままだと点数が0になります）。
+                  </p>
+                )}
+                {live.investment > budget && (
+                  <p className="text-red-400">
+                    ⚠️ 予算超過です（投資 ¥{live.investment.toLocaleString()} / 予算 ¥{budget.toLocaleString()}）。
+                  </p>
+                )}
+                {perRaceDiagnostics.some(d => d.valueAvg > 0 && d.valueAvg < 0.8) && (
+                  <p className="text-red-400">
+                    ⚠️ 期待値が低めの選択が含まれています（目安: value_score平均が低いレースあり）。
+                  </p>
+                )}
               </div>
+
+              {explosionRoutes.length > 0 && (
+                <div className="mt-2 rounded-xl border border-white/10 bg-white/[0.02] p-3">
+                  <p className="text-sm font-bold mb-2">✨ 爆発ルートTop5（目安）</p>
+                  <div className="space-y-1 text-[11px] text-tornado-muted">
+                    {explosionRoutes.map((r, idx) => (
+                      <div key={idx} className="flex justify-between gap-2">
+                        <span>
+                          #{idx + 1} {r.picks.map(p => `R${p.race_order}:${p.horse_number}`).join(' / ')}
+                        </span>
+                        <span className="text-white">〜¥{r.payout.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -561,6 +683,44 @@ export default function DashboardPage() {
                   最新で更新
                 </button>
               </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  onClick={runOverlap}
+                  disabled={overlapLoading}
+                  className="px-4 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-sm font-bold hover:bg-white/[0.06] transition disabled:opacity-40"
+                >
+                  {overlapLoading ? '集計中...' : '👥 被り度チェック'}
+                </button>
+                <span className="text-[11px] text-tornado-muted">
+                  保存済み買い目から集計します
+                </span>
+              </div>
+
+              {overlapMsg && <p className="text-xs text-tornado-muted">{overlapMsg}</p>}
+
+              {overlap && overlap.total_tickets > 0 && (
+                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 space-y-2">
+                  <p className="text-sm font-bold">👥 被り度（{overlap.total_tickets}件中）</p>
+                  <div className="space-y-1 text-[11px] text-tornado-muted">
+                    {Object.entries(overlap.overlap || {}).map(([rk, arr]) => (
+                      <div key={rk} className="flex flex-wrap gap-x-3 gap-y-1">
+                        <span className="text-white">{rk}:</span>
+                        {arr.map(x => (
+                          <span key={x.horse_number}>
+                            {x.horse_number}（{Math.round(x.ratio * 100)}%）
+                          </span>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                  {Object.values(overlap.overlap || {}).some(arr => arr.some(x => x.ratio >= 0.5)) && (
+                    <p className="text-[11px] text-red-400">
+                      ⚠️ 被りが高い馬が含まれています。高配当狙いなら一部を穴に寄せると効果的です。
+                    </p>
+                  )}
+                </div>
+              )}
 
               {sim && (
                 <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 space-y-2">

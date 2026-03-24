@@ -1,11 +1,28 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { BarChart3, MessageCircle, Target, Layers, Activity, Zap, Shield, ChevronRight } from 'lucide-react'
 import AuthGuard from '@/components/auth/AuthGuard'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 
+const API = process.env.NEXT_PUBLIC_API_URL || ''
+
 export default function MyPage() {
+  const [profile, setProfile] = useState<any>(null)
+
+  useEffect(() => {
+    const token = localStorage.getItem('tornado_token') || ''
+    if (!token) return
+    fetch(`${API}/api/win5/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    })
+      .then(r => r.json())
+      .then(data => setProfile(data))
+      .catch(() => {})
+  }, [])
+
   return (
     <AuthGuard>
       <div className="min-h-screen bg-tornado-deep">
@@ -65,6 +82,18 @@ export default function MyPage() {
               <p className="text-[11px] text-white/40 mt-1">戦略を相談する</p>
             </Link>
           </div>
+
+          {profile && profile.count > 0 && (
+            <div className="rounded-2xl border border-white/5 p-5" style={{ background: '#111827' }}>
+              <p className="text-sm font-bold">🧠 あなたの傾向（保存データ {profile.count}件）</p>
+              <p className="text-xs text-white/40 mt-1">{profile.style}</p>
+              <div className="mt-3 text-xs text-white/50 space-y-1">
+                <p>平均点数: {Math.round(profile.avg_total_combinations)}点</p>
+                <p>平均投資: ¥{Math.round(profile.avg_investment).toLocaleString()}</p>
+                <p className="mt-2">{profile.tip}</p>
+              </div>
+            </div>
+          )}
 
           <Link
             href="/history"
