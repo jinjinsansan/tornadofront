@@ -3,9 +3,9 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Send, Flame } from 'lucide-react'
 import AuthGuard from '@/components/auth/AuthGuard'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
-import { useWin5Store } from '@/store/win5Store'
 import { useRouter } from 'next/navigation'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
@@ -28,8 +28,7 @@ export default function ChatPage() {
   const [toolStatus, setToolStatus] = useState('')
   const [quickReplies, setQuickReplies] = useState<QuickReply[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const budget = useWin5Store(s => s.budget)
-  const targetPayout = useWin5Store(s => s.targetPayout)
+  const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -84,9 +83,9 @@ export default function ChatPage() {
           try {
             const event = JSON.parse(data)
             if (event.type === 'thinking') {
-              setToolStatus('🌪️ 分析中...')
+              setToolStatus('分析中...')
             } else if (event.type === 'tool') {
-              setToolStatus(`🌪️ ${event.label || event.name}...`)
+              setToolStatus(`${event.label || event.name}...`)
             } else if (event.type === 'text') {
               assistantText = event.content
               setMessages(prev => {
@@ -128,81 +127,93 @@ export default function ChatPage() {
 
   return (
     <AuthGuard>
-    <div className="min-h-screen flex flex-col max-w-2xl mx-auto">
+    <div className="flex flex-col h-screen max-w-2xl mx-auto bg-[#0B0E11]">
+
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <header className="sticky top-0 z-30 bg-[#0B0E11]/80 backdrop-blur-md border-b border-[#2B3139] px-4 py-3 flex items-center justify-between flex-shrink-0">
+        <div className="flex items-center gap-2.5">
           <Link href="/" className="flex items-center">
             <Image src="/brand/logo.png" alt="TornadoAI" width={32} height={32} className="rounded-lg" priority />
           </Link>
-          <h1 className="text-lg font-bold">トルネードAI</h1>
+          <span className="text-base font-bold text-[#EAECEF]">TornadoAI</span>
         </div>
         <HamburgerMenu />
       </header>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* Messages area */}
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5">
+
+        {/* Empty state */}
         {messages.length === 0 && (
-          <div className="text-center text-tornado-muted mt-20">
-            <div className="mb-4 flex justify-center">
-              <Image src="/brand/logo.png" alt="TornadoAI" width={64} height={64} priority />
+          <div className="flex flex-col items-center justify-center pt-16 sm:pt-24">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#ef4444]/15 rounded-full flex items-center justify-center mb-5">
+              <Image src="/brand/logo.png" alt="TornadoAI" width={40} height={40} className="rounded-full" priority />
             </div>
-            <p className="text-lg font-bold mb-2">WIN5の戦略を一緒に考えましょう</p>
-            <p className="text-sm mb-6">予算と目標をお伝えいただければ、最適な買い目をご提案します</p>
-            <div className="flex flex-wrap gap-2 justify-center">
+            <p className="text-base sm:text-lg font-bold text-[#EAECEF] mb-2">WIN5の戦略を一緒に考えましょう</p>
+            <p className="text-sm text-[#848E9C] mb-8 text-center px-4">予算と目標をお伝えいただければ、最適な買い目をご提案します</p>
+
+            <div className="grid grid-cols-2 gap-2 w-full max-w-sm px-4">
               {[
-                { label: '🌪️ 今週のWIN5', text: '今週のWIN5は？' },
-                { label: '🎯 買い目出して', text: `予算${budget}円で買い目出して` },
-                { label: '📊 3シナリオ', text: '3シナリオ見せて' },
-                { label: '💰 目標で作って', text: `予算${budget}円で${Math.round(targetPayout / 10000)}万狙いたいです` },
+                { label: '今週のWIN5', text: '今週のWIN5は？' },
+                { label: '買い目出して', text: '予算5000円で買い目出して' },
+                { label: '3シナリオ', text: '3シナリオ見せて' },
+                { label: '500万狙いたい', text: '予算5000円で500万狙いたいです' },
               ].map(q => (
                 <button
                   key={q.text}
                   onClick={() => sendMessage(q.text)}
-                  className="px-4 py-2 bg-tornado-card border border-tornado-border rounded-full text-sm hover:bg-tornado-border transition"
+                  className="rounded-lg border border-[#2B3139] bg-[#181A20] p-3 text-left hover:bg-[#ef4444]/5 hover:border-[#ef4444]/30 transition-colors"
                 >
-                  {q.label}
+                  <p className="text-sm font-medium text-[#EAECEF]">{q.label}</p>
                 </button>
               ))}
             </div>
           </div>
         )}
 
+        {/* Messages */}
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            {msg.role === 'assistant' && (
-              <div className="mr-2 mt-1 shrink-0">
-                <Image src="/brand/logo.png" alt="AI" width={24} height={24} className="rounded-md" />
-              </div>
-            )}
             <div
-              className={`max-w-[85%] px-4 py-3 rounded-2xl whitespace-pre-wrap text-sm leading-relaxed ${
+              className={`max-w-[85%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-2 sm:py-3 relative group ${
                 msg.role === 'user'
-                  ? 'bg-tornado-accent text-white'
-                  : 'bg-tornado-card border border-tornado-border text-tornado-text'
+                  ? 'bg-gradient-to-r from-[#ef4444] to-[#f97316] text-white'
+                  : 'border border-[#ef4444]/20 bg-[#181A20]'
               }`}
             >
-              {msg.content}
+              {msg.role === 'assistant' && (
+                <div className="flex items-center mb-1.5">
+                  <Flame className="w-3.5 h-3.5 text-[#ef4444] mr-1.5" />
+                  <span className="text-xs text-[#ef4444] font-semibold">TornadoAI</span>
+                </div>
+              )}
+              <div className="whitespace-pre-wrap text-sm sm:text-base text-[#EAECEF] leading-relaxed select-text">
+                {msg.content}
+              </div>
             </div>
           </div>
         ))}
 
+        {/* Tool status */}
         {toolStatus && (
           <div className="flex justify-start">
-            <div className="px-4 py-3 bg-tornado-card border border-tornado-border rounded-2xl text-sm text-tornado-muted animate-pulse">
-              {toolStatus}
+            <div className="bg-[#181A20] border border-[#2B3139] rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 min-w-[200px]">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-[#ef4444] rounded-full animate-pulse" />
+                <span className="text-sm text-[#848E9C]">{toolStatus}</span>
+              </div>
             </div>
           </div>
         )}
 
         {/* Quick Replies */}
         {quickReplies.length > 0 && !isLoading && (
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 pt-1">
             {quickReplies.map(qr => (
               <button
                 key={qr.text}
                 onClick={() => sendMessage(qr.text)}
-                className="px-3 py-1.5 bg-tornado-card border border-tornado-accent/40 text-tornado-accent rounded-full text-xs hover:bg-tornado-accent/10 transition"
+                className="px-3 py-1.5 rounded-lg border border-[#ef4444]/30 bg-[#ef4444]/5 text-[#ef4444] text-xs font-medium hover:bg-[#ef4444]/10 transition-colors"
               >
                 {qr.label}
               </button>
@@ -213,27 +224,45 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="sticky bottom-0 bg-tornado-bg border-t border-tornado-border p-4">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && sendMessage()}
-            placeholder="WIN5について何でも聞いてください..."
-            className="flex-1 bg-tornado-card border border-tornado-border rounded-xl px-4 py-3 text-sm text-tornado-text placeholder-tornado-muted focus:outline-none focus:border-tornado-accent"
-            disabled={isLoading}
-          />
-          <button
-            onClick={() => sendMessage()}
-            disabled={isLoading || !input.trim()}
-            className="px-6 py-3 bg-tornado-accent text-white font-bold rounded-xl hover:opacity-90 transition disabled:opacity-40"
-          >
-            送信
-          </button>
+      {/* Input area */}
+      <div className="border-t border-[#2B3139] bg-[#181A20] flex-shrink-0">
+        <div className="px-3 sm:px-4 py-2.5 sm:py-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex-1">
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                placeholder="WIN5について何でも聞いてください..."
+                className="w-full bg-[#0B0E11] border border-[#2B3139] rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-base text-[#EAECEF] placeholder-[#848E9C] focus:outline-none focus:border-[#ef4444] focus:ring-1 focus:ring-[#ef4444]"
+                disabled={isLoading}
+              />
+            </div>
+            <button
+              onClick={() => sendMessage()}
+              disabled={isLoading || !input.trim()}
+              className="p-2.5 sm:p-3 rounded-lg transition-colors flex-shrink-0"
+              style={{
+                background: input.trim() && !isLoading ? 'linear-gradient(135deg, #ef4444, #f97316)' : '#2B3139',
+                cursor: input.trim() && !isLoading ? 'pointer' : 'not-allowed',
+              }}
+            >
+              <Send className="w-4 sm:w-5 h-4 sm:h-5 text-white" />
+            </button>
+          </div>
+        </div>
+
+        {/* Status bar */}
+        <div className="px-3 sm:px-4 pb-2 sm:pb-3">
+          <div className="flex items-center justify-between text-[10px] text-[#848E9C]">
+            <span>TornadoAI — WIN5戦略AI</span>
+            <span>Premium</span>
+          </div>
         </div>
       </div>
+
     </div>
     </AuthGuard>
   )
