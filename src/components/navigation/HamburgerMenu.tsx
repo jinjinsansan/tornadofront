@@ -53,7 +53,7 @@ export default function HamburgerMenu() {
   const mainLinks = [
     { href: '/', label: 'ホーム', icon: Home },
     { href: '/mypage', label: 'マイページ', icon: User },
-    { href: '/dashboard', label: 'ダッシュボード', icon: BarChart3 },
+    { href: '/dashboard', label: 'WIN5モード', icon: BarChart3 },
     { href: '/wide', label: 'ワイドモード', icon: Layers },
     { href: '/chat', label: 'AIチャット', icon: MessageCircle },
   ]
