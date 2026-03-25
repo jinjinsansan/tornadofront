@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Send, Flame } from 'lucide-react'
+import { Send, Flame, LifeBuoy, RefreshCw } from 'lucide-react'
 import AuthGuard from '@/components/auth/AuthGuard'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 import { useRouter } from 'next/navigation'
@@ -20,6 +20,7 @@ export default function ChatPage() {
   const [sessionId, setSessionId] = useState('')
   const [toolStatus, setToolStatus] = useState('')
   const [quickReplies, setQuickReplies] = useState<QuickReply[]>([])
+  const [supportMode, setSupportMode] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
@@ -29,6 +30,27 @@ export default function ChatPage() {
       .then(r => r.json())
       .then(data => setSessionId(data.session_id))
       .catch(() => setSessionId('local-' + Date.now()))
+  }, [])
+
+  const fetchSupportReplies = async () => {
+    const token = localStorage.getItem('tornado_token') || ''
+    if (!token) return
+    try {
+      const res = await fetch(`${API}/api/support/replies`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' })
+      const data = await res.json().catch(() => ({} as any))
+      const list = (data?.replies || []) as Array<{ ticket_id: number; text: string }>
+      if (list.length === 0) return
+      setMessages(prev => [
+        ...prev,
+        ...list.map(r => ({ role: 'assistant' as const, content: `【サポート回答 #${r.ticket_id}】\n${r.text}` })),
+      ])
+    } catch {}
+  }
+
+  useEffect(() => {
+    fetchSupportReplies()
+    const id = window.setInterval(fetchSupportReplies, 15000)
+    return () => window.clearInterval(id)
   }, [])
 
   const ensureSessionId = async () => {
@@ -65,6 +87,27 @@ export default function ChatPage() {
     setToolStatus('')
 
     try {
+      if (supportMode) {
+        const token = localStorage.getItem('tornado_token') || ''
+        const res = await fetch(`${API}/api/support/tickets`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ message: userMsg, page: '/chat' }),
+        })
+        const data = await res.json().catch(() => ({} as any))
+        if (!res.ok) {
+          setMessages(prev => [...prev, { role: 'assistant', content: data?.error || '送信に失敗しました。もう一度お試しください。' }])
+          return
+        }
+        const ticketId = data?.ticket_id
+        setMessages(prev => [...prev, { role: 'assistant', content: `お問い合わせを受け付けました（受付番号 #${ticketId}）。\n担当からの返信はこのチャットに届きます。` }])
+        setSupportMode(false)
+        return
+      }
+
       const sid = await ensureSessionId()
       const res = await fetch(`${API}/api/chat`, {
         method: 'POST',
@@ -156,7 +199,39 @@ export default function ChatPage() {
           </Link>
           <span className="font-bold text-[#EAECEF]">TornadoAI</span>
         </div>
-        <HamburgerMenu />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              setSupportMode(true)
+              setMessages(prev => [
+                ...prev,
+                { role: 'assistant', content: 'お問い合わせありがとうございます。\nこのチャットにそのまま「内容」を送ってください（個人情報やパスワードは書かないでください）。\n送信するとサポートへ転送し、返信はこのチャットに届きます。' },
+              ])
+            }}
+            className={`px-3 py-2 rounded-xl text-xs font-bold border transition ${
+              supportMode
+                ? 'border-[#fbbf24]/40 bg-[#fbbf24]/10 text-[#fbbf24]'
+                : 'border-white/10 bg-white/[0.03] text-white/70 hover:bg-white/[0.06]'
+            }`}
+            aria-label="お問い合わせ"
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <LifeBuoy size={14} />
+              お問い合わせ
+            </span>
+          </button>
+          <button
+            onClick={fetchSupportReplies}
+            className="px-3 py-2 rounded-xl text-xs font-bold border border-white/10 bg-white/[0.03] text-white/60 hover:bg-white/[0.06] transition"
+            aria-label="返信を更新"
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <RefreshCw size={14} />
+              更新
+            </span>
+          </button>
+          <HamburgerMenu />
+        </div>
       </header>
 
       {/* ── Messages ── */}
