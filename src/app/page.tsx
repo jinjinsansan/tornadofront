@@ -19,6 +19,8 @@ import {
   Shield,
 } from "lucide-react";
 
+const PURCHASE_FORM_URL = "https://president-of-keiba.com/fm/30881/bFMgNR3S";
+
 /* ── Feature data ── */
 const features = [
   {
@@ -103,9 +105,17 @@ export default function Home() {
           <nav className="flex items-center gap-3 sm:gap-5">
             <Link href="/dashboard" className="hidden sm:inline text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
             <Link href="/wide" className="hidden sm:inline text-sm text-white/50 hover:text-white transition">ワイドモード</Link>
+            <a
+              href={PURCHASE_FORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm px-5 py-2.5 bg-gradient-to-r from-tornado-gold to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
+            >
+              購入を相談する
+            </a>
             <Link
               href="/login"
-              className="text-sm px-5 py-2.5 bg-gradient-to-r from-tornado-accent to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
+              className="text-sm px-5 py-2.5 border border-white/15 bg-white/5 text-white font-bold rounded-full hover:bg-white/10 transition"
             >
               招待コードでログイン
             </Link>
@@ -160,25 +170,27 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.6 }}
-                className="flex flex-col sm:flex-row items-center gap-4 lg:items-start"
+                className="flex flex-col items-center gap-3 lg:items-start"
               >
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center gap-2 rounded-full px-9 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
+                <a
+                  href={PURCHASE_FORM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full px-9 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
                   style={{
-                    background: "linear-gradient(135deg, #ef4444, #f97316)",
-                    boxShadow: "0 0 30px rgba(239,68,68,0.3), 0 0 80px rgba(239,68,68,0.1)",
+                    background: "linear-gradient(135deg, #fbbf24, #f97316)",
+                    boxShadow: "0 0 30px rgba(251,191,36,0.25), 0 0 80px rgba(251,191,36,0.08)",
                   }}
                 >
                   <Sparkles className="h-5 w-5" />
-                  招待コードでログイン
-                </Link>
+                  購入を相談する
+                </a>
                 <Link
-                  href="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/15 bg-white/5 px-8 py-5 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-tornado-orange/50 hover:bg-tornado-orange/10 hover:text-tornado-orange active:scale-95"
+                  href="/login"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border-2 border-white/15 bg-white/5 px-8 py-5 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-tornado-orange/50 hover:bg-tornado-orange/10 hover:text-tornado-orange active:scale-95"
                 >
-                  <BarChart3 className="h-5 w-5" />
-                  ダッシュボードを見る
+                  <Zap className="h-5 w-5" />
+                  招待コードでログイン
                 </Link>
               </motion.div>
 
@@ -620,18 +632,29 @@ export default function Home() {
               一緒に戦略を立てませんか。
             </span>
           </h2>
-          <p className="text-lg text-white/50">招待コードでログインして、今週の買い目を設計しましょう。</p>
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center gap-2 rounded-full px-10 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
-            style={{
-              background: "linear-gradient(135deg, #ef4444, #f97316)",
-              boxShadow: "0 0 30px rgba(239,68,68,0.3), 0 0 80px rgba(239,68,68,0.1)",
-            }}
-          >
-            <Sparkles className="h-5 w-5" />
-            招待コードでログイン
-          </Link>
+          <p className="text-lg text-white/50">購入前の方は購入相談フォームへ。購入済みの方はログインして今週の買い目を設計しましょう。</p>
+          <div className="flex w-full max-w-md flex-col gap-3">
+            <a
+              href={PURCHASE_FORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-full px-10 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
+              style={{
+                background: "linear-gradient(135deg, #fbbf24, #f97316)",
+                boxShadow: "0 0 30px rgba(251,191,36,0.25), 0 0 80px rgba(251,191,36,0.08)",
+              }}
+            >
+              <Sparkles className="h-5 w-5" />
+              購入を相談する
+            </a>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/15 bg-white/5 px-10 py-5 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-tornado-orange/50 hover:bg-tornado-orange/10 hover:text-tornado-orange active:scale-95"
+            >
+              <Zap className="h-5 w-5" />
+              招待コードでログイン
+            </Link>
+          </div>
         </div>
       </section>
 
