@@ -30,6 +30,17 @@ type Race = {
   distance: string
   volatility_rank: number
   volatility_desc: string
+  volatility_detail?: {
+    raw_score: number
+    factors: {
+      field_size_score?: number
+      competitiveness_score?: number
+      favorite_reliability_score?: number
+      odds_entropy_score?: number
+      [k: string]: any
+    }
+    description: string
+  }
   horses: Horse[]
 }
 
@@ -166,6 +177,7 @@ export default function DashboardPage() {
   const [races, setRaces] = useState<Race[]>([])
   const [loading, setLoading] = useState(true)
   const [carryover, setCarryover] = useState(0)
+  const [showVolDetail, setShowVolDetail] = useState(false)
   const budget = useWin5Store(s => s.budget)
   const setBudget = useWin5Store(s => s.setBudget)
   const targetPayout = useWin5Store(s => s.targetPayout)
@@ -446,6 +458,14 @@ export default function DashboardPage() {
   const overallColor = totalVolatility >= 20 ? 'text-red-400' : totalVolatility >= 15 ? 'text-orange-400' : totalVolatility >= 12 ? 'text-yellow-400' : 'text-blue-400'
   const overallGradient = totalVolatility >= 20 ? 'from-red-500/20 to-red-900/5' : totalVolatility >= 15 ? 'from-orange-500/20 to-orange-900/5' : totalVolatility >= 12 ? 'from-yellow-500/20 to-yellow-900/5' : 'from-blue-500/20 to-blue-900/5'
 
+  const overallVolatilityWhy = useMemo(() => {
+    const s = totalVolatility
+    if (s >= 20) return '合計20以上なので「大荒れ週」です（5レース中、荒れるレースが多い想定）。'
+    if (s >= 15) return '合計15以上なので「荒れ模様」です（波乱度4以上が複数ある想定）。'
+    if (s >= 12) return '合計12以上なので「やや混戦」です（堅い/荒れるが混在する週）。'
+    return '合計が低めなので「やや堅め」です（堅いレースが多い想定）。'
+  }, [totalVolatility])
+
   const live = calcFromTickets(customTickets)
 
   const perRaceDiagnostics = races.map(r => {
@@ -586,6 +606,78 @@ export default function DashboardPage() {
                   <p className="text-3xl font-black gradient-text">{totalVolatility}</p>
                   <p className="text-[11px] text-tornado-muted">/25</p>
                 </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-white/[0.06]">
+                <button
+                  onClick={() => setShowVolDetail(v => !v)}
+                  className="w-full flex items-center justify-between text-left"
+                >
+                  <p className="text-xs font-bold text-white/90">なぜ「{overallLabel}」？（内訳）</p>
+                  <span className="text-[11px] text-tornado-muted">{showVolDetail ? '閉じる' : '開く'}</span>
+                </button>
+                {showVolDetail && (
+                  <div className="mt-3 space-y-3">
+                    <p className="text-[11px] text-tornado-muted">{overallVolatilityWhy}</p>
+
+                    <div className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-3">
+                      <p className="text-[11px] font-bold text-white/80 mb-2">週判定ルール（総合波乱度=各レースの合計）</p>
+                      <div className="grid grid-cols-2 gap-2 text-[10px] text-tornado-muted">
+                        <div>0–11：やや堅め</div>
+                        <div>12–14：やや混戦</div>
+                        <div>15–19：荒れ模様</div>
+                        <div>20–25：大荒れ週</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      {races.map(r => {
+                        const v = r.volatility_detail
+                        const f = v?.factors || {}
+                        return (
+                          <div key={r.race_order} className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="text-[11px] text-white/90 font-bold truncate">
+                                  R{r.race_order} {r.venue}{r.race_number}R {r.race_name}
+                                </p>
+                                <p className="text-[10px] text-tornado-muted">
+                                  波乱度: {r.volatility_rank}/5（{v?.description || r.volatility_desc || '-'}） / Raw: {v?.raw_score ?? '-'} /100
+                                </p>
+                              </div>
+                              <div className="text-[10px] font-bold text-white/80 whitespace-nowrap">
+                                {STARS[r.volatility_rank]}
+                              </div>
+                            </div>
+
+                            <div className="mt-2 grid grid-cols-2 gap-2 text-[10px] text-tornado-muted">
+                              <div>
+                                <p className="font-bold text-white/70">頭数（0–25）</p>
+                                <p>{f.field_size_score ?? '-'}pt：多いほど波乱</p>
+                              </div>
+                              <div>
+                                <p className="font-bold text-white/70">拮抗度（0–30）</p>
+                                <p>{f.competitiveness_score ?? '-'}pt：上位が接近ほど波乱</p>
+                              </div>
+                              <div>
+                                <p className="font-bold text-white/70">人気の信頼（0–25）</p>
+                                <p>{f.favorite_reliability_score ?? '-'}pt：人気が過大評価ほど波乱</p>
+                              </div>
+                              <div>
+                                <p className="font-bold text-white/70">オッズ分散（0–20）</p>
+                                <p>{f.odds_entropy_score ?? '-'}pt：割れ目ほど波乱</p>
+                              </div>
+                            </div>
+
+                            <p className="mt-2 text-[9px] text-tornado-muted">
+                              ※ オッズ未確定の時期は「オッズ分散」が中立寄りになり、精度は週後半ほど上がります。
+                            </p>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </GlassCard>
           </motion.div>
