@@ -142,6 +142,9 @@ export default function MyPage() {
   const [weekTicketsCount, setWeekTicketsCount] = useState(0)
   const [latestTicket, setLatestTicket] = useState<TicketRow | null>(null)
   const [ticketsLoading, setTicketsLoading] = useState(true)
+  const [wideReady, setWideReady] = useState<boolean | null>(null)
+  const [wideDate, setWideDate] = useState<string>('')
+  const [wideCount, setWideCount] = useState<number>(0)
 
   useEffect(() => {
     const token = localStorage.getItem('tornado_token') || ''
@@ -153,6 +156,22 @@ export default function MyPage() {
       .then(r => r.json())
       .then(data => setProfile(data))
       .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const token = localStorage.getItem('tornado_token') || ''
+    if (!token) return
+    fetch(`${API}/api/wide/races`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    })
+      .then(r => r.json())
+      .then(data => {
+        setWideReady(typeof data?.ready === 'boolean' ? data.ready : null)
+        setWideDate(String(data?.date || ''))
+        setWideCount(Number(data?.count || 0))
+      })
+      .catch(() => setWideReady(null))
   }, [])
 
   useEffect(() => {
@@ -192,6 +211,11 @@ export default function MyPage() {
   const volatilityTotal = useMemo(() => weekRaces.reduce((s, r) => s + (r.volatility_rank || 3), 0), [weekRaces])
   const overallLabel = volatilityTotal >= 20 ? '大荒れ週' : volatilityTotal >= 15 ? '荒れ模様' : volatilityTotal >= 12 ? 'やや混戦' : 'やや堅め'
   const overallColor = volatilityTotal >= 20 ? '#ef4444' : volatilityTotal >= 15 ? '#f97316' : volatilityTotal >= 12 ? '#fbbf24' : '#3b82f6'
+
+  const wideDateLabel = useMemo(() => {
+    if (!wideDate || wideDate.length !== 8) return ''
+    return `${wideDate.slice(0, 4)}/${wideDate.slice(4, 6)}/${wideDate.slice(6, 8)}`
+  }, [wideDate])
 
   const provisionalByRace = useMemo(() => {
     const m: Record<number, boolean> = {}
@@ -384,6 +408,53 @@ export default function MyPage() {
               </div>
             </div>
           </div>
+
+          <div className="max-w-4xl mx-auto mt-3">
+            <div className="rounded-xl border-2 border-white/10 bg-white/[0.03] p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs text-[#B7BDC6] font-medium flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-[#fbbf24]" />
+                    ワイド（利益確保）
+                  </p>
+                  <p className="text-sm font-bold mt-1 text-white/90">
+                    {wideDateLabel ? `対象開催日: ${wideDateLabel}` : '対象開催日: -'}
+                  </p>
+                  <p className="text-[11px] text-[#B7BDC6] mt-1">
+                    レース数: {wideCount || 0} / ステータス:{' '}
+                    {wideReady === null ? (
+                      <span className="text-white/50">取得中</span>
+                    ) : wideReady ? (
+                      <span className="text-[#10b981] font-bold">利用可能</span>
+                    ) : (
+                      <span className="text-[#fbbf24] font-bold">準備中（前日10:30以降）</span>
+                    )}
+                  </p>
+                </div>
+                <Link href="/wide" className="text-xs font-bold text-white/60 hover:text-white transition-colors whitespace-nowrap">
+                  開く →
+                </Link>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <Link
+                  href="/wide"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all shadow-lg hover:scale-[1.01] active:scale-[0.98]"
+                  style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.35), rgba(249,115,22,0.18))', border: '1px solid rgba(251,191,36,0.35)' }}
+                >
+                  <Layers className="w-4 h-4 text-[#fbbf24]" />
+                  ワイドモード
+                </Link>
+                <Link
+                  href="/chat"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all border border-white/10 bg-white/5 hover:bg-white/[0.08]"
+                >
+                  <MessageCircle className="w-4 h-4 text-[#3b82f6]" />
+                  ワイドを相談
+                </Link>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* ── Hero Welcome ── */}
@@ -483,6 +554,7 @@ export default function MyPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { href: '/dashboard', icon: BarChart3, title: 'ダッシュボード', desc: '今週のWIN5対象5レースと波乱度をチェック', color: '#f97316' },
+                { href: '/wide', icon: Layers, title: 'ワイドモード', desc: '予算×目標払戻でワイド買い目を提案', color: '#fbbf24' },
                 { href: '/chat', icon: MessageCircle, title: 'AIチャット', desc: '予算・目標・スタイルを伝えて買い目を相談', color: '#3b82f6' },
                 { href: '/history', icon: FileText, title: '保存した買い目', desc: '保存したパターンを比較・確認', color: '#a855f7' },
                 { href: '/results', icon: History, title: '過去WIN5結果', desc: '過去の配当・キャリーオーバーを確認', color: '#10b981' },
