@@ -5,8 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import {
-  BarChart3, MessageCircle, Target, Layers, Activity, Zap, Shield,
-  ChevronRight, ChevronDown, Flame, Clock, Sparkles, TrendingUp,
+  BarChart3, MessageCircle, Target, Layers, Activity, Zap,
+  ChevronRight, Clock, TrendingUp,
   FileText, History,
 } from 'lucide-react'
 import AuthGuard from '@/components/auth/AuthGuard'
@@ -85,52 +85,6 @@ const nextSundayYyyymmdd = () => {
   const dd = String(d.getDate()).padStart(2, '0')
   return `${y}${m}${dd}`
 }
-
-const FEATURES = [
-  {
-    icon: Activity,
-    title: '波乱度ランク',
-    desc: '5段階の荒れ度を数値で可視化',
-    color: 'from-red-400 to-red-600',
-  },
-  {
-    icon: Target,
-    title: '買い目ジェネレーター',
-    desc: '予算×目標で自動最適化',
-    color: 'from-orange-400 to-orange-600',
-  },
-  {
-    icon: Layers,
-    title: '3シナリオ提示',
-    desc: '本線・中荒れ・大荒れ比較',
-    color: 'from-yellow-400 to-yellow-600',
-  },
-  {
-    icon: MessageCircle,
-    title: 'AI戦略チャット',
-    desc: '自然言語で買い目を相談',
-    color: 'from-blue-400 to-blue-600',
-  },
-  {
-    icon: Flame,
-    title: '爆発ヒートマップ',
-    desc: '高配当ルートを可視化',
-    color: 'from-pink-400 to-pink-600',
-  },
-  {
-    icon: TrendingUp,
-    title: '被り率分析',
-    desc: '他ユーザーとの重複回避',
-    color: 'from-teal-400 to-teal-600',
-  },
-]
-
-const STEPS = [
-  { num: '01', title: '対象レース確認', desc: 'ダッシュボードでWIN5対象5レースと波乱度をチェック。', icon: BarChart3, color: '#ef4444' },
-  { num: '02', title: '戦略を構築', desc: 'AIチャットで「3シナリオ見せて」と聞くだけ。予算と目標を伝えれば最適解を提案。', icon: Sparkles, color: '#f97316' },
-  { num: '03', title: '買い目を決定', desc: '日曜朝に最新オッズで再生成。「予算5,000円で500万狙い」でAIが即回答。', icon: Target, color: '#fbbf24' },
-  { num: '04', title: 'IPATで購入', desc: '3シナリオから選んで購入するだけ。あなたのスタイルで勝負。', icon: Zap, color: '#3b82f6' },
-]
 
 export default function MyPage() {
   const router = useRouter()
@@ -457,91 +411,6 @@ export default function MyPage() {
           </div>
         </section>
 
-        {/* ── Hero Welcome ── */}
-        <section className="relative overflow-hidden pt-20 sm:pt-28 pb-14 sm:pb-20 px-6">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#ef4444]/8 via-[#f97316]/3 to-transparent" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#ef4444]/5 rounded-full blur-[120px]" />
-
-          <div className="max-w-4xl mx-auto text-center relative z-10">
-            <div className="mb-5">
-              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#ef4444]/10 border border-[#ef4444]/30 text-[#ef4444] text-sm font-medium">
-                <Shield className="w-4 h-4" />
-                Premium Member
-              </span>
-            </div>
-
-            <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-5 sm:mb-7">
-              ようこそ、
-              <span className="bg-gradient-to-r from-[#ef4444] via-[#f97316] to-[#fbbf24] bg-clip-text text-transparent">TornadoAI</span>
-              へ
-            </h1>
-
-            <p className="text-base sm:text-lg text-[#B7BDC6] mb-8 sm:mb-10 max-w-xl mx-auto leading-relaxed">
-              WIN5の組み合わせを最適化するAI。
-              <br className="sm:hidden" />
-              予算と目標配当を伝えるだけで、
-              <br className="sm:hidden" />
-              <span className="text-[#fbbf24] font-semibold">5レースの最適な買い目</span>を自動設計します。
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-base sm:text-lg transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98]"
-                style={{
-                  background: 'linear-gradient(135deg, #ef4444, #f97316)',
-                  boxShadow: '0 8px 30px rgba(239,68,68,0.3)',
-                }}
-              >
-                <BarChart3 className="w-5 h-5" />
-                ダッシュボードを開く
-                <ChevronRight className="w-5 h-5" />
-              </Link>
-              <Link
-                href="/chat"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border-2 border-white/15 bg-white/5 font-bold text-base sm:text-lg transition-all hover:border-[#f97316]/40 hover:bg-[#f97316]/10 hover:text-[#f97316] active:scale-[0.98]"
-              >
-                <MessageCircle className="w-5 h-5" />
-                AIに相談する
-              </Link>
-            </div>
-
-            <div className="mt-10 sm:mt-14">
-              <ChevronDown className="w-6 h-6 mx-auto text-[#848E9C] animate-bounce" />
-            </div>
-          </div>
-        </section>
-
-        {/* ── Feature Grid ── */}
-        <section className="py-14 sm:py-20 px-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8 sm:mb-12">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-                あなたの<span className="text-[#ef4444]">6つの武器</span>
-              </h2>
-              <p className="text-sm sm:text-base text-[#B7BDC6]">
-                WIN5攻略に必要な全機能を搭載
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
-              {FEATURES.map((f) => {
-                const Icon = f.icon
-                return (
-                  <div
-                    key={f.title}
-                    className={`bg-gradient-to-br ${f.color} p-4 sm:p-5 rounded-xl text-white text-center shadow-lg transition-transform duration-200 hover:scale-105 hover:shadow-xl`}
-                  >
-                    <Icon className="w-6 h-6 sm:w-7 sm:h-7 mx-auto mb-2" strokeWidth={1.5} />
-                    <div className="text-xs sm:text-sm font-bold leading-tight">{f.title}</div>
-                    <div className="text-[10px] sm:text-xs font-medium opacity-80 mt-1">{f.desc}</div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-
         {/* ── Quick Links ── */}
         <section className="py-14 sm:py-20 px-6 bg-[#181A20]">
           <div className="max-w-4xl mx-auto">
@@ -618,68 +487,6 @@ export default function MyPage() {
             </div>
           </section>
         )}
-
-        {/* ── How to Use ── */}
-        <section className="py-14 sm:py-20 px-6 bg-[#181A20]">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8 sm:mb-12">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-                毎週の<span className="text-[#fbbf24]">攻略フロー</span>
-              </h2>
-              <p className="text-sm sm:text-base text-[#B7BDC6]">
-                4ステップで買い目が完成します
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {STEPS.map((s) => {
-                const Icon = s.icon
-                return (
-                  <div
-                    key={s.num}
-                    className="flex items-start gap-4 p-4 sm:p-5 rounded-xl border border-white/5 bg-[#0B0E11]"
-                  >
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                      style={{ background: `${s.color}15`, boxShadow: `0 0 20px ${s.color}15` }}
-                    >
-                      <Icon className="w-5 h-5" style={{ color: s.color, filter: `drop-shadow(0 0 6px ${s.color})` }} strokeWidth={1.5} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold tracking-widest mb-1" style={{ color: s.color }}>STEP {s.num}</p>
-                      <p className="text-sm font-bold text-white/90 mb-1">{s.title}</p>
-                      <p className="text-xs text-[#B7BDC6] leading-relaxed">{s.desc}</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* ── CTA ── */}
-        <section className="py-16 sm:py-20 px-6 text-center">
-          <div className="max-w-2xl mx-auto">
-            <p className="text-xl sm:text-2xl font-bold mb-6">
-              今週のWIN5、
-              <span className="bg-gradient-to-r from-[#ef4444] via-[#f97316] to-[#fbbf24] bg-clip-text text-transparent">
-                戦略を立てましょう。
-              </span>
-            </p>
-            <Link
-              href="/chat"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-base transition-all hover:scale-[1.02] active:scale-[0.98]"
-              style={{
-                background: 'linear-gradient(135deg, #ef4444, #f97316)',
-                boxShadow: '0 8px 30px rgba(239,68,68,0.25)',
-              }}
-            >
-              <MessageCircle className="w-5 h-5" />
-              AIに今週のWIN5を相談する
-              <ChevronRight className="w-5 h-5" />
-            </Link>
-          </div>
-        </section>
 
       </div>
     </AuthGuard>
