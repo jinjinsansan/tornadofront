@@ -31,6 +31,24 @@ export default function ChatPage() {
       .catch(() => setSessionId('local-' + Date.now()))
   }, [])
 
+  const ensureSessionId = async () => {
+    if (sessionId) return sessionId
+    setToolStatus('準備中...')
+    try {
+      const res = await fetch(`${API}/api/chat/sessions`, { method: 'POST' })
+      const data = await res.json().catch(() => ({} as any))
+      const sid = String(data?.session_id || '') || 'local-' + Date.now()
+      setSessionId(sid)
+      return sid
+    } catch {
+      const sid = 'local-' + Date.now()
+      setSessionId(sid)
+      return sid
+    } finally {
+      setToolStatus('')
+    }
+  }
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, quickReplies])
@@ -47,13 +65,37 @@ export default function ChatPage() {
     setToolStatus('')
 
     try {
+      const sid = await ensureSessionId()
       const res = await fetch(`${API}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId, message: userMsg }),
+        body: JSON.stringify({ session_id: sid, message: userMsg }),
       })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({} as any))
+        setMessages(prev => [...prev, { role: 'assistant', content: data?.error || 'エラーが発生しました。もう一度お試しください。' }])
+        return
+      }
+
       const reader = res.body?.getReader()
-      if (!reader) return
+      if (!reader) {
+        const raw = await res.text().catch(() => '')
+        const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
+        let assistantText = ''
+        for (const line of lines) {
+          if (!line.startsWith('data:')) continue
+          const payload = line.replace(/^data:\s?/, '').trim()
+          if (payload === '[DONE]') break
+          try {
+            const event = JSON.parse(payload)
+            if (event.type === 'text') assistantText = String(event.content || '')
+          } catch {}
+        }
+        if (assistantText) setMessages(prev => [...prev, { role: 'assistant', content: assistantText }])
+        else setMessages(prev => [...prev, { role: 'assistant', content: '応答の取得に失敗しました。もう一度お試しください。' }])
+        return
+      }
       const decoder = new TextDecoder()
       let assistantText = ''
 
