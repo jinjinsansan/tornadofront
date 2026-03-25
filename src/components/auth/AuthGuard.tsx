@@ -24,10 +24,21 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           return
         }
 
+        // Optimistic render: show the app immediately if a token exists,
+        // then validate it in the background to avoid long blocking spinners.
+        if (!cancelled) {
+          setIsAuth(true)
+          setChecking(false)
+        }
+
+        const ac = new AbortController()
+        const t = setTimeout(() => ac.abort(), 6000)
         const res = await fetch(`${API}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: 'no-store',
+          signal: ac.signal,
         })
+        clearTimeout(t)
 
         if (!res.ok) {
           try {
@@ -35,21 +46,18 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             localStorage.removeItem('tornado_user')
           } catch {}
           if (!cancelled) {
+            setIsAuth(false)
             setChecking(false)
             router.replace('/login')
           }
           return
         }
 
-        if (!cancelled) {
-          setIsAuth(true)
-          setChecking(false)
-        }
+        // Token is valid; nothing else to do.
       } catch {
-        if (!cancelled) {
-          setChecking(false)
-          router.replace('/login')
-        }
+        // Network issues: keep the user in the app if they already have a token.
+        // They'll be redirected only if the token is actually invalid.
+        if (!cancelled) setChecking(false)
       }
     }
 
