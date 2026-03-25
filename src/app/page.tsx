@@ -103,21 +103,36 @@ export default function Home() {
             <span className="text-lg font-black tracking-wide">TornadoAI</span>
           </div>
           <nav className="flex items-center gap-3 sm:gap-5">
-            <Link href="/dashboard" className="hidden sm:inline text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
-            <Link href="/wide" className="hidden sm:inline text-sm text-white/50 hover:text-white transition">ワイドモード</Link>
+            <Link href="/dashboard" className="hidden md:inline text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
+            <Link href="/wide" className="hidden md:inline text-sm text-white/50 hover:text-white transition">ワイドモード</Link>
             <a
               href={PURCHASE_FORM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm px-5 py-2.5 bg-gradient-to-r from-tornado-gold to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
+              className="hidden sm:inline-flex text-sm px-5 py-2.5 bg-gradient-to-r from-tornado-gold to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
             >
               購入を相談する
             </a>
             <Link
               href="/login"
-              className="text-sm px-5 py-2.5 border border-white/15 bg-white/5 text-white font-bold rounded-full hover:bg-white/10 transition"
+              className="hidden sm:inline-flex text-sm px-5 py-2.5 border border-white/15 bg-white/5 text-white font-bold rounded-full hover:bg-white/10 transition"
             >
               招待コードでログイン
+            </Link>
+            {/* Mobile: compact buttons */}
+            <a
+              href={PURCHASE_FORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sm:hidden text-xs px-3 py-2 bg-gradient-to-r from-tornado-gold to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
+            >
+              購入相談
+            </a>
+            <Link
+              href="/login"
+              className="sm:hidden text-xs px-3 py-2 border border-white/15 bg-white/5 text-white font-bold rounded-full hover:bg-white/10 transition"
+            >
+              ログイン
             </Link>
           </nav>
         </div>
