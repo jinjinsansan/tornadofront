@@ -73,6 +73,20 @@ const features = [
       { role: "ai", text: "いいですね。波乱度的にR3とR5を広げて、堅いR2は1頭に絞るのがベストです。48点の組み合わせでご提案しますね。" },
     ],
   },
+  {
+    tag: "Feature 05",
+    icon: DollarSign,
+    color: "#10b981",
+    title: "ワイドモード",
+    titleHighlight: "利益確保",
+    subtitle: "予算と欲しい払戻を言うだけ。最も近い×当たりやすい組み合わせへ",
+    desc: "「1,000円しかないけど5,000円欲しい」——目標倍率（=欲しい払戻/予算）に対して、最も近いワイドの組み合わせを優先しつつ、“当たりやすさ”も加味して提案します。まずワイドで土台を作り、WIN5で一撃を狙う。これがトルネードAIの戦い方です。",
+    wideMock: {
+      input: "予算 ¥1,000 → 目標 ¥5,000（5.00倍）",
+      best: "おすすめ：④×⑫（想定 4.8–5.3倍）",
+      note: "目標に近い×当たりやすい順で上位候補も提示",
+    },
+  },
 ];
 
 export default function Home() {
@@ -88,6 +102,7 @@ export default function Home() {
           </div>
           <nav className="flex items-center gap-3 sm:gap-5">
             <Link href="/dashboard" className="hidden sm:inline text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
+            <Link href="/wide" className="hidden sm:inline text-sm text-white/50 hover:text-white transition">ワイドモード</Link>
             <Link
               href="/login"
               className="text-sm px-5 py-2.5 bg-gradient-to-r from-tornado-accent to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
@@ -441,6 +456,86 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ━━━ Feature 05: ワイドモード ━━━ */}
+        <section className="relative py-16 sm:py-28 lg:py-36" style={{ background: "#080c18" }}>
+          <div className="absolute left-1/2 top-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.04] blur-[150px]" style={{ background: features[4].color }} />
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+              {/* Text */}
+              <div className="relative overflow-hidden rounded-2xl sm:rounded-[2rem] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent p-5 sm:p-8 backdrop-blur-sm md:p-12">
+                <div className="mb-6 flex items-center gap-3">
+                  <DollarSign className="h-8 w-8 sm:h-12 sm:w-12" style={{ color: features[4].color }} strokeWidth={1.5} />
+                  <span className="text-sm font-bold tracking-widest uppercase" style={{ color: features[4].color }}>Feature 05</span>
+                </div>
+                <h2 className="mb-8 text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
+                  {features[4].title}
+                  <br />
+                  <span className="bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(135deg, ${features[4].color}, #fbbf24)` }}>
+                    {features[4].titleHighlight}
+                  </span>
+                </h2>
+                <p className="text-lg font-light leading-relaxed text-white/70 md:text-xl">{features[4].subtitle}</p>
+                <p className="mt-4 text-base leading-relaxed text-white/50">{features[4].desc}</p>
+
+                <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                  <Link
+                    href="/wide"
+                    className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-4 text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95"
+                    style={{
+                      background: `linear-gradient(135deg, ${features[4].color}, #fbbf24)`,
+                      boxShadow: `0 0 30px ${features[4].color}25`,
+                    }}
+                  >
+                    <DollarSign className="h-4 w-4" />
+                    ワイドモードを開く
+                  </Link>
+                  <Link
+                    href="/chat"
+                    className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-4 text-sm font-bold text-white/80 border border-white/10 bg-white/[0.03] hover:bg-white/[0.05] transition"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    AIに相談する
+                  </Link>
+                </div>
+              </div>
+
+              {/* Visual mock */}
+              <div className="relative rounded-2xl sm:rounded-[2rem] border border-white/10 bg-[#0a0e1a] p-6 sm:p-8">
+                <p className="mb-2 text-xs font-bold tracking-[0.25em] text-white/30 uppercase">Wide Mode</p>
+                <div className="rounded-2xl border-2 p-5 sm:p-7" style={{ borderColor: `${features[4].color}35`, background: `${features[4].color}10` }}>
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl border border-white/10 flex items-center justify-center" style={{ background: `${features[4].color}18` }}>
+                      <Target className="h-5 w-5" style={{ color: features[4].color }} strokeWidth={1.5} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-white/40">入力</p>
+                      <p className="text-sm font-bold text-white/90">{features[4].wideMock?.input || ""}</p>
+                    </div>
+                  </div>
+                  <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                    <p className="text-xs text-white/40 mb-1">おすすめ</p>
+                    <p className="text-base font-black" style={{ color: "#fbbf24" }}>{features[4].wideMock?.best || ""}</p>
+                    <p className="mt-2 text-[11px] text-white/45">{features[4].wideMock?.note || ""}</p>
+                  </div>
+                </div>
+
+                <div className="mt-6 grid grid-cols-3 gap-2">
+                  {[
+                    { t: "土台作り", d: "ワイドで利益確保", c: "#10b981" },
+                    { t: "一撃狙い", d: "WIN5で爆発", c: "#ef4444" },
+                    { t: "統合相談", d: "AIチャットで最終判断", c: "#3b82f6" },
+                  ].map((x, i) => (
+                    <div key={i} className="rounded-xl border border-white/10 bg-white/[0.02] p-3">
+                      <p className="text-xs font-black" style={{ color: x.c }}>{x.t}</p>
+                      <p className="mt-1 text-[10px] text-white/45">{x.d}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ━━━ How It Works ━━━ */}
         <section className="relative py-16 sm:py-28 lg:py-36" style={{ background: "#080c18" }}>
           <div className="mx-auto max-w-6xl px-6">
@@ -551,6 +646,7 @@ export default function Home() {
           <div className="flex gap-8 text-xs text-white/30">
             <Link href="/chat" className="hover:text-white transition">AIチャット</Link>
             <Link href="/dashboard" className="hover:text-white transition">ダッシュボード</Link>
+            <Link href="/wide" className="hover:text-white transition">ワイドモード</Link>
           </div>
           <p className="text-xs text-white/20">&copy; 2026 TornadoAI</p>
         </div>
