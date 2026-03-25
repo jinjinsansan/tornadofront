@@ -109,9 +109,9 @@ export default function Home() {
               href={PURCHASE_FORM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:inline-flex text-sm px-5 py-2.5 bg-gradient-to-r from-tornado-gold to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
+              className="hidden sm:inline-flex text-sm px-5 py-2.5 bg-gradient-to-r from-tornado-accent to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
             >
-              購入を相談する
+              購入する
             </a>
             <Link
               href="/login"
@@ -124,9 +124,9 @@ export default function Home() {
               href={PURCHASE_FORM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="sm:hidden text-xs px-3 py-2 bg-gradient-to-r from-tornado-gold to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
+              className="sm:hidden text-xs px-3 py-2 bg-gradient-to-r from-tornado-accent to-tornado-orange text-white font-bold rounded-full hover:opacity-90 transition"
             >
-              購入相談
+              購入する
             </a>
             <Link
               href="/login"
@@ -193,12 +193,12 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full px-9 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
                   style={{
-                    background: "linear-gradient(135deg, #fbbf24, #f97316)",
-                    boxShadow: "0 0 30px rgba(251,191,36,0.25), 0 0 80px rgba(251,191,36,0.08)",
+                    background: "linear-gradient(135deg, #ef4444, #f97316)",
+                    boxShadow: "0 0 30px rgba(239,68,68,0.3), 0 0 80px rgba(239,68,68,0.1)",
                   }}
                 >
                   <Sparkles className="h-5 w-5" />
-                  購入を相談する
+                  購入する
                 </a>
                 <Link
                   href="/login"
@@ -647,7 +647,7 @@ export default function Home() {
               一緒に戦略を立てませんか。
             </span>
           </h2>
-          <p className="text-lg text-white/50">購入前の方は購入相談フォームへ。購入済みの方はログインして今週の買い目を設計しましょう。</p>
+          <p className="text-lg text-white/50">まだお持ちでない方は購入へ。購入済みの方はログインして今週の買い目を設計しましょう。</p>
           <div className="flex w-full max-w-md flex-col gap-3">
             <a
               href={PURCHASE_FORM_URL}
@@ -655,12 +655,12 @@ export default function Home() {
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-full px-10 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
               style={{
-                background: "linear-gradient(135deg, #fbbf24, #f97316)",
-                boxShadow: "0 0 30px rgba(251,191,36,0.25), 0 0 80px rgba(251,191,36,0.08)",
+                background: "linear-gradient(135deg, #ef4444, #f97316)",
+                boxShadow: "0 0 30px rgba(239,68,68,0.3), 0 0 80px rgba(239,68,68,0.1)",
               }}
             >
               <Sparkles className="h-5 w-5" />
-              購入を相談する
+              購入する
             </a>
             <Link
               href="/login"
