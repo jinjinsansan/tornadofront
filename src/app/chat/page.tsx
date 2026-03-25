@@ -183,6 +183,7 @@ export default function ChatPage() {
                 { emoji: '🌪️', label: '今週のWIN5' , text: '今週のWIN5は？' },
                 { emoji: '🎯', label: '買い目出して', text: '予算5000円で買い目出して' },
                 { emoji: '📊', label: '3シナリオ', text: '3シナリオ見せて' },
+                { emoji: '💰', label: 'ワイド5倍', text: '中山11Rでワイド 1000円→5000円が欲しい' },
               ].map(q => (
                 <button
                   key={q.text}
