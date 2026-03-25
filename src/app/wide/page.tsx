@@ -37,18 +37,18 @@ type WideResult = {
   note?: string
 }
 
-const todayYyyymmddJst = () => {
-  const now = new Date()
-  const utc = now.getTime() + now.getTimezoneOffset() * 60 * 1000
-  const jst = new Date(utc + 9 * 60 * 60 * 1000)
-  const y = jst.getFullYear()
-  const m = String(jst.getMonth() + 1).padStart(2, '0')
-  const d = String(jst.getDate()).padStart(2, '0')
-  return `${y}${m}${d}`
+type RaceListResponse = {
+  date: string
+  ready: boolean
+  ready_at: string | null
+  races: RaceRow[]
+  count: number
 }
 
 export default function WidePage() {
-  const [date, setDate] = useState(todayYyyymmddJst())
+  const [date, setDate] = useState('')
+  const [ready, setReady] = useState(true)
+  const [readyAt, setReadyAt] = useState<string | null>(null)
   const [races, setRaces] = useState<RaceRow[]>([])
   const [raceId, setRaceId] = useState('')
   const [budget, setBudget] = useState(1000)
@@ -70,12 +70,13 @@ export default function WidePage() {
     setError('')
     setResult(null)
     try {
-      const url = new URL(`${API}/api/wide/races`)
-      url.searchParams.set('date', date)
-      const res = await fetch(url.toString(), { headers: token ? { Authorization: `Bearer ${token}` } : {}, cache: 'no-store' })
-      const data = await res.json().catch(() => ({} as any))
+      const res = await fetch(`${API}/api/wide/races`, { headers: token ? { Authorization: `Bearer ${token}` } : {}, cache: 'no-store' })
+      const data = (await res.json().catch(() => ({} as any))) as RaceListResponse & { error?: string }
       if (!res.ok) throw new Error(data?.error || '取得に失敗しました')
       const list = (data?.races || []) as RaceRow[]
+      setDate(String(data?.date || ''))
+      setReady(Boolean(data?.ready ?? true))
+      setReadyAt(data?.ready_at || null)
       setRaces(list)
       setRaceId(prev => prev || list?.[0]?.race_id || '')
     } catch (e: any) {
@@ -120,6 +121,18 @@ export default function WidePage() {
     return `${r.venue}${r.race_number}R ${r.race_name}${time}${dist}`
   }
 
+  const dateLabel = useMemo(() => {
+    if (!date || date.length !== 8) return ''
+    return `${date.slice(0, 4)}/${date.slice(4, 6)}/${date.slice(6, 8)}`
+  }, [date])
+
+  const readyAtLabel = useMemo(() => {
+    if (!readyAt) return ''
+    const d = new Date(readyAt)
+    if (Number.isNaN(d.getTime())) return ''
+    return d.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+  }, [readyAt])
+
   const pairText = (c: WideCandidate) => `${c.pair[0]?.horse_number} ${c.pair[0]?.horse_name} × ${c.pair[1]?.horse_number} ${c.pair[1]?.horse_name}`
 
   return (
@@ -157,13 +170,10 @@ export default function WidePage() {
             <div className="grid grid-cols-1 gap-2">
               <div className="grid grid-cols-3 gap-2">
                 <div className="col-span-1">
-                  <label className="text-[11px] text-white/40">日付（YYYYMMDD）</label>
-                  <input
-                    value={date}
-                    onChange={e => setDate(e.target.value.replace(/[^0-9]/g, '').slice(0, 8))}
-                    className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/90 focus:outline-none focus:border-[#f97316]/50"
-                    inputMode="numeric"
-                  />
+                  <label className="text-[11px] text-white/40">対象開催日（自動）</label>
+                  <div className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/90">
+                    {dateLabel || '-'}
+                  </div>
                 </div>
                 <div className="col-span-2">
                   <label className="text-[11px] text-white/40">対象レース</label>
@@ -181,6 +191,12 @@ export default function WidePage() {
                   </select>
                 </div>
               </div>
+
+              {!ready && (
+                <div className="rounded-xl border border-[#fbbf24]/30 bg-[#fbbf24]/10 px-3 py-2 text-[11px] text-[#fbbf24]">
+                  データ準備中：前日10:30以降に利用できます（目安 {readyAtLabel || '前日10:30'}）
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
@@ -210,7 +226,7 @@ export default function WidePage() {
 
               <button
                 onClick={generate}
-                disabled={genLoading || loading || !raceId}
+                disabled={genLoading || loading || !raceId || !ready}
                 className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all shadow-lg hover:scale-[1.01] active:scale-[0.98] disabled:opacity-40"
                 style={{ background: 'linear-gradient(135deg, #ef4444, #f97316)', boxShadow: '0 8px 30px rgba(239,68,68,0.25)' }}
               >
