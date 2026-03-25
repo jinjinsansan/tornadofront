@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -14,6 +14,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || ''
 type Horse = {
   horse_number: number
   horse_name: string
+  waku?: number
   odds: number
   ai_win_prob: number
   value_score: number
@@ -83,6 +84,34 @@ type HeatmapResponse = {
       routes_count: number
     }>
   }>
+}
+
+const toRoman = (n: number) => {
+  if (!Number.isFinite(n) || n <= 0) return ''
+  const map: Array<[number, string]> = [
+    [1000, 'M'],
+    [900, 'CM'],
+    [500, 'D'],
+    [400, 'CD'],
+    [100, 'C'],
+    [90, 'XC'],
+    [50, 'L'],
+    [40, 'XL'],
+    [10, 'X'],
+    [9, 'IX'],
+    [5, 'V'],
+    [4, 'IV'],
+    [1, 'I'],
+  ]
+  let x = Math.floor(n)
+  let out = ''
+  for (const [v, s] of map) {
+    while (x >= v) {
+      out += s
+      x -= v
+    }
+  }
+  return out
 }
 
 const STARS = ['', '★', '★★', '★★★', '★★★★', '★★★★★']
@@ -191,6 +220,19 @@ export default function DashboardPage() {
       .then(data => setCarryover(Number(data.carryover || 0)))
       .catch(() => setCarryover(0))
   }, [])
+
+  const provisionalByRace = useMemo(() => {
+    const m: Record<number, boolean> = {}
+    for (const r of races) {
+      const hs = r.horses || []
+      m[r.race_order] = hs.length > 0 && hs.every(h => !h.waku || h.waku === 0)
+    }
+    return m
+  }, [races])
+
+  const horseNoLabel = (raceOrder: number, horseNumber: number) => {
+    return provisionalByRace[raceOrder] ? toRoman(horseNumber) : String(horseNumber)
+  }
 
   const toggleHorse = (raceOrder: number, horseNumber: number) => {
     const key = `R${raceOrder}`
@@ -625,7 +667,7 @@ export default function DashboardPage() {
                     <div className="flex gap-1 mt-1.5">
                       {explosion.picks.map((p: any) => (
                         <span key={p.race_order} className="text-[10px] bg-white/[0.06] rounded-md px-1.5 py-0.5 text-tornado-muted">
-                          R{p.race_order}:{p.horse_number}
+                          R{p.race_order}:{horseNoLabel(p.race_order, p.horse_number)}
                         </span>
                       ))}
                     </div>
@@ -681,7 +723,7 @@ export default function DashboardPage() {
                             <div className="flex gap-0.5">
                               {r.picks.map(p => (
                                 <span key={p.race_order} className="text-[10px] bg-white/[0.04] rounded px-1 py-0.5 text-tornado-muted">
-                                  R{p.race_order}:{p.horse_number}
+                                  R{p.race_order}:{horseNoLabel(p.race_order, p.horse_number)}
                                 </span>
                               ))}
                             </div>
@@ -743,6 +785,11 @@ export default function DashboardPage() {
                         className="overflow-hidden"
                       >
                         <div className="border-t border-white/[0.06] px-4 pb-4">
+                          {provisionalByRace[race.race_order] && (
+                            <p className="text-[10px] text-tornado-muted pt-3">
+                              ※ 枠順未確定のため番号は仮表示（I, II, III...）です
+                            </p>
+                          )}
                           {/* Table Header */}
                           <div className="grid grid-cols-[2rem_1fr_3.5rem_3.5rem_3.5rem] gap-1 text-[10px] text-tornado-muted font-medium uppercase tracking-wider py-2.5 border-b border-white/[0.04]">
                             <span>No.</span>
@@ -767,7 +814,7 @@ export default function DashboardPage() {
                                   }`}
                                 >
                                   <span className={`text-xs font-bold ${isSelected ? 'text-tornado-accent' : ''}`}>
-                                    {h.horse_number}
+                                    {horseNoLabel(race.race_order, h.horse_number)}
                                   </span>
                                   <span className={`text-left text-xs truncate ${isSelected ? 'text-white font-medium' : 'text-tornado-text'}`}>
                                     {h.horse_name}
@@ -794,7 +841,7 @@ export default function DashboardPage() {
                                 <div className="flex gap-1">
                                   {selectedHorses.map(n => (
                                     <span key={n} className="text-[10px] bg-tornado-accent/20 text-tornado-accent rounded-md px-1.5 py-0.5 font-medium">
-                                      {n}
+                                      {horseNoLabel(race.race_order, n)}
                                     </span>
                                   ))}
                                 </div>
@@ -947,7 +994,9 @@ export default function DashboardPage() {
                       <div key={race.race_order} className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-2.5 text-center">
                         <p className="text-[10px] text-tornado-muted font-medium">R{race.race_order}</p>
                         <p className="text-base font-black mt-0.5">{sel.length}</p>
-                        <p className="text-[9px] text-tornado-muted truncate">{sel.join(', ') || '-'}</p>
+                        <p className="text-[9px] text-tornado-muted truncate">
+                          {sel.map(n => horseNoLabel(race.race_order, n)).join(', ') || '-'}
+                        </p>
                       </div>
                     )
                   })}
@@ -1054,9 +1103,10 @@ export default function DashboardPage() {
                             {arr.map(x => {
                               const ratio = Math.round(x.ratio * 100)
                               const color = ratio >= 50 ? 'bg-red-500/20 text-red-400 border-red-500/20' : 'bg-white/[0.04] text-tornado-muted border-white/[0.06]'
+                              const ro = Number(String(rk).replace('R', '')) || 0
                               return (
                                 <span key={x.horse_number} className={`text-[10px] px-1.5 py-0.5 rounded-md border ${color}`}>
-                                  {x.horse_number}({ratio}%)
+                                  {(ro ? horseNoLabel(ro, x.horse_number) : String(x.horse_number))}({ratio}%)
                                 </span>
                               )
                             })}
@@ -1101,7 +1151,7 @@ export default function DashboardPage() {
                                   className="rounded-xl border border-white/10 p-2"
                                   style={{ background: `linear-gradient(135deg, rgba(239,68,68,${alpha}), rgba(249,115,22,${alpha * 0.6}))` }}
                                 >
-                                  <p className="text-[11px] font-bold text-white">#{it.horse_number}</p>
+                                  <p className="text-[11px] font-bold text-white">#{horseNoLabel(r.race_order, it.horse_number)}</p>
                                   <p className="text-[9px] text-white/80 truncate">{it.horse_name}</p>
                                   <p className="text-[10px] text-white/90 font-medium mt-0.5">~¥{it.max_route_payout.toLocaleString()}</p>
                                 </div>
@@ -1139,7 +1189,9 @@ export default function DashboardPage() {
                     <div className="space-y-1">
                       {sim.per_race.map(r => (
                         <div key={r.race_order} className="flex justify-between text-[10px] text-tornado-muted py-0.5 border-b border-white/[0.03]">
-                          <span>R{r.race_order} {r.race_name}（人気:{r.favorite_horse_number ?? '-'}）</span>
+                          <span>
+                            R{r.race_order} {r.race_name}（人気:{r.favorite_horse_number ? horseNoLabel(r.race_order, r.favorite_horse_number) : '-'}）
+                          </span>
                           <span>{r.base_odds_range.min.toFixed(1)}~{r.base_odds_range.max.toFixed(1)} → {r.favorite_miss_odds_range.min.toFixed(1)}~{r.favorite_miss_odds_range.max.toFixed(1)}</span>
                         </div>
                       ))}
@@ -1190,7 +1242,9 @@ export default function DashboardPage() {
                             <div key={race.race_order} className="rounded-lg bg-white/[0.04] border border-white/[0.06] p-2 text-center">
                               <p className="text-[9px] text-tornado-muted">R{race.race_order}</p>
                               <p className="text-sm font-black">{sel.length}</p>
-                              <p className="text-[9px] text-tornado-muted truncate">{sel.join(',')}</p>
+                              <p className="text-[9px] text-tornado-muted truncate">
+                                {sel.map(n => horseNoLabel(race.race_order, n)).join(',')}
+                              </p>
                             </div>
                           )
                         })}
