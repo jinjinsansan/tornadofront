@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -45,7 +46,9 @@ export default function LineCallbackClient() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-tornado-deep">
       <div className="w-full max-w-md text-center">
-        <p className="text-4xl mb-4">🌪️</p>
+        <div className="flex justify-center mb-4">
+          <Image src="/brand/logo.png" alt="TornadoAI" width={56} height={56} className="rounded-2xl" priority />
+        </div>
         <p className="text-sm text-tornado-muted">{msg}</p>
         <div className="mt-6">
           <Link href="/login" className="text-xs text-tornado-muted hover:text-white transition">

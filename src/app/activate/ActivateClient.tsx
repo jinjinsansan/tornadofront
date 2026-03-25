@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -51,7 +52,9 @@ export default function ActivateClient() {
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-tornado-deep">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <Link href="/" className="text-4xl">🌪️</Link>
+          <Link href="/" className="inline-flex justify-center">
+            <Image src="/brand/logo.png" alt="TornadoAI" width={56} height={56} className="rounded-2xl" priority />
+          </Link>
           <h1 className="text-2xl font-black mt-3">TornadoAI</h1>
           <p className="text-tornado-muted text-sm mt-1">初回アクティベーション</p>
         </div>

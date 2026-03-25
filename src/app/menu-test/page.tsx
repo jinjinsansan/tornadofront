@@ -1,13 +1,14 @@
 'use client'
 
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
+import Image from 'next/image'
 
 export default function MenuTestPage() {
   return (
     <div className="min-h-screen max-w-2xl mx-auto">
       <header className="sticky top-0 z-30 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🌪️</span>
+          <Image src="/brand/logo.png" alt="TornadoAI" width={30} height={30} className="rounded-lg" />
           <h1 className="text-lg font-bold">Menu Test</h1>
         </div>
         <HamburgerMenu />

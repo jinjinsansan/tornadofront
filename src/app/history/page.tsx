@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import AuthGuard from '@/components/auth/AuthGuard'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 
@@ -51,14 +52,19 @@ export default function HistoryPage() {
       <div className="min-h-screen max-w-2xl mx-auto pb-20">
         <header className="sticky top-0 z-30 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link href="/" className="text-2xl">🌪️</Link>
+            <Link href="/">
+              <Image src="/brand/logo.png" alt="TornadoAI" width={30} height={30} className="rounded-lg" />
+            </Link>
             <h1 className="text-lg font-bold">買い目履歴</h1>
           </div>
           <HamburgerMenu />
         </header>
 
         {loading ? (
-          <div className="text-center mt-20 text-tornado-muted animate-pulse">🌪️ 取得中...</div>
+          <div className="flex flex-col items-center justify-center mt-20 gap-3 text-tornado-muted">
+            <Image src="/brand/logo.png" alt="TornadoAI" width={44} height={44} className="rounded-2xl opacity-70" />
+            <p className="text-sm animate-pulse">取得中...</p>
+          </div>
         ) : error ? (
           <div className="p-4">
             <div className="bg-tornado-card border border-tornado-border rounded-xl p-4 text-red-400 text-sm">

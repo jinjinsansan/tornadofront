@@ -409,7 +409,7 @@ export default function Home() {
               {/* Chat mock */}
               <div className="relative rounded-2xl sm:rounded-[2rem] border border-white/10 bg-[#0a0e1a] p-6 sm:p-8">
                 <div className="flex items-center gap-2 mb-6 pb-4 border-b border-white/5">
-                  <span className="text-xl">🌪️</span>
+                  <Image src="/brand/logo.png" alt="TornadoAI" width={22} height={22} className="rounded-md" />
                   <span className="font-bold text-sm">TornadoAI</span>
                   <span className="text-xs text-white/30 ml-auto">WIN5戦略AI</span>
                 </div>
