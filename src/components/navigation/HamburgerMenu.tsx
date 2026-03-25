@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
-import { Home, User, BarChart3, MessageCircle, LogOut, X, ChevronRight, FileText, History } from 'lucide-react'
+import { Home, User, BarChart3, MessageCircle, LogOut, X, ChevronRight, FileText, History, Layers } from 'lucide-react'
 import styles from './HamburgerMenu.module.css'
 
 export default function HamburgerMenu() {
@@ -54,6 +54,7 @@ export default function HamburgerMenu() {
     { href: '/', label: 'ホーム', icon: Home },
     { href: '/mypage', label: 'マイページ', icon: User },
     { href: '/dashboard', label: 'ダッシュボード', icon: BarChart3 },
+    { href: '/wide', label: 'ワイドモード', icon: Layers },
     { href: '/chat', label: 'AIチャット', icon: MessageCircle },
   ]
 

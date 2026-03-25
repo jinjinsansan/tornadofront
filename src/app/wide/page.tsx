@@ -1,0 +1,293 @@
+'use client'
+
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import AuthGuard from '@/components/auth/AuthGuard'
+import HamburgerMenu from '@/components/navigation/HamburgerMenu'
+import { Target, RefreshCw } from 'lucide-react'
+
+const API = process.env.NEXT_PUBLIC_API_URL || ''
+
+type RaceRow = {
+  race_id: string
+  venue: string
+  race_number: number
+  race_name: string
+  start_time?: string
+  distance?: string
+}
+
+type WideCandidate = {
+  pair: Array<{ horse_number: number; horse_name: string }>
+  wide_odds: { min: number; max: number }
+  hit_probability_est: number
+  multiplier_mid: number
+  expected_payout_range: { min: number; max: number }
+}
+
+type WideResult = {
+  race_id: string
+  budget: number
+  target_payout: number
+  target_multiplier: number
+  recommended: WideCandidate
+  alternatives: WideCandidate[]
+  count: number
+  note?: string
+}
+
+const todayYyyymmddJst = () => {
+  const now = new Date()
+  const utc = now.getTime() + now.getTimezoneOffset() * 60 * 1000
+  const jst = new Date(utc + 9 * 60 * 60 * 1000)
+  const y = jst.getFullYear()
+  const m = String(jst.getMonth() + 1).padStart(2, '0')
+  const d = String(jst.getDate()).padStart(2, '0')
+  return `${y}${m}${d}`
+}
+
+export default function WidePage() {
+  const [date, setDate] = useState(todayYyyymmddJst())
+  const [races, setRaces] = useState<RaceRow[]>([])
+  const [raceId, setRaceId] = useState('')
+  const [budget, setBudget] = useState(1000)
+  const [targetPayout, setTargetPayout] = useState(5000)
+  const [loading, setLoading] = useState(true)
+  const [genLoading, setGenLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [result, setResult] = useState<WideResult | null>(null)
+
+  const token = useMemo(() => (typeof window !== 'undefined' ? localStorage.getItem('tornado_token') || '' : ''), [])
+
+  const targetMult = useMemo(() => {
+    if (budget <= 0) return 0
+    return targetPayout / budget
+  }, [budget, targetPayout])
+
+  const loadRaces = async () => {
+    setLoading(true)
+    setError('')
+    setResult(null)
+    try {
+      const url = new URL(`${API}/api/wide/races`)
+      url.searchParams.set('date', date)
+      const res = await fetch(url.toString(), { headers: token ? { Authorization: `Bearer ${token}` } : {}, cache: 'no-store' })
+      const data = await res.json().catch(() => ({} as any))
+      if (!res.ok) throw new Error(data?.error || '取得に失敗しました')
+      const list = (data?.races || []) as RaceRow[]
+      setRaces(list)
+      setRaceId(prev => prev || list?.[0]?.race_id || '')
+    } catch (e: any) {
+      setError(e?.message || 'エラーが発生しました')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadRaces()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const generate = async () => {
+    if (!raceId) return
+    setGenLoading(true)
+    setError('')
+    setResult(null)
+    try {
+      const res = await fetch(`${API}/api/wide/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ race_id: raceId, budget, target_payout: targetPayout }),
+      })
+      const data = await res.json().catch(() => ({} as any))
+      if (!res.ok) throw new Error(data?.error || '生成に失敗しました')
+      setResult(data as WideResult)
+    } catch (e: any) {
+      setError(e?.message || 'エラーが発生しました')
+    } finally {
+      setGenLoading(false)
+    }
+  }
+
+  const raceLabel = (r: RaceRow) => {
+    const time = r.start_time ? ` ${r.start_time}` : ''
+    const dist = r.distance ? ` / ${r.distance}` : ''
+    return `${r.venue}${r.race_number}R ${r.race_name}${time}${dist}`
+  }
+
+  const pairText = (c: WideCandidate) => `${c.pair[0]?.horse_number} ${c.pair[0]?.horse_name} × ${c.pair[1]?.horse_number} ${c.pair[1]?.horse_name}`
+
+  return (
+    <AuthGuard>
+      <div className="min-h-screen max-w-2xl mx-auto pb-24 bg-[#0B0E11]">
+        <header className="sticky top-0 z-30 border-b border-white/[0.06]" style={{ background: 'linear-gradient(180deg, rgba(6,11,24,0.95) 0%, rgba(6,11,24,0.85) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link href="/">
+                <Image src="/brand/logo.png" alt="TornadoAI" width={34} height={34} className="rounded-xl" />
+              </Link>
+              <div>
+                <h1 className="text-base font-bold tracking-tight text-white/90">ワイドモード</h1>
+                <p className="text-[11px] text-white/40 -mt-0.5">予算 × 目標払戻で「最も近い×当たりやすい」組み合わせ</p>
+              </div>
+            </div>
+            <HamburgerMenu />
+          </div>
+        </header>
+
+        <div className="p-4 space-y-3">
+          <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.05] to-transparent p-4">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <p className="text-sm font-bold text-white/90">レース選択</p>
+              <button
+                onClick={loadRaces}
+                disabled={loading}
+                className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/[0.08] transition disabled:opacity-40"
+              >
+                <RefreshCw size={14} />
+                更新
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-3 gap-2">
+                <div className="col-span-1">
+                  <label className="text-[11px] text-white/40">日付（YYYYMMDD）</label>
+                  <input
+                    value={date}
+                    onChange={e => setDate(e.target.value.replace(/[^0-9]/g, '').slice(0, 8))}
+                    className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/90 focus:outline-none focus:border-[#f97316]/50"
+                    inputMode="numeric"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-[11px] text-white/40">対象レース</label>
+                  <select
+                    value={raceId}
+                    onChange={e => setRaceId(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/90 focus:outline-none focus:border-[#f97316]/50"
+                    disabled={loading}
+                  >
+                    {races.map(r => (
+                      <option key={r.race_id} value={r.race_id}>
+                        {raceLabel(r)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[11px] text-white/40">予算（円）</label>
+                  <input
+                    value={budget}
+                    onChange={e => setBudget(Number(e.target.value.replace(/[^0-9]/g, '')) || 0)}
+                    className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/90 focus:outline-none focus:border-[#f97316]/50"
+                    inputMode="numeric"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-white/40">欲しい払戻（円）</label>
+                  <input
+                    value={targetPayout}
+                    onChange={e => setTargetPayout(Number(e.target.value.replace(/[^0-9]/g, '')) || 0)}
+                    className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/90 focus:outline-none focus:border-[#f97316]/50"
+                    inputMode="numeric"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                <p className="text-[11px] text-white/40">目標倍率</p>
+                <p className="text-sm font-black text-[#fbbf24]">{targetMult ? targetMult.toFixed(2) : '-' }倍</p>
+              </div>
+
+              <button
+                onClick={generate}
+                disabled={genLoading || loading || !raceId}
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all shadow-lg hover:scale-[1.01] active:scale-[0.98] disabled:opacity-40"
+                style={{ background: 'linear-gradient(135deg, #ef4444, #f97316)', boxShadow: '0 8px 30px rgba(239,68,68,0.25)' }}
+              >
+                <Target size={16} />
+                {genLoading ? '生成中...' : 'ワイド買い目を生成'}
+              </button>
+
+              <p className="text-[11px] text-white/35">
+                ※ オッズ公開前は生成できない場合があります。その場合はレース当日に再実行してください。
+              </p>
+            </div>
+          </div>
+
+          {error && (
+            <div className="rounded-2xl border border-[#ef4444]/30 bg-[#ef4444]/10 p-4 text-sm text-[#ef4444]">
+              {error}
+            </div>
+          )}
+
+          {result && (
+            <div className="space-y-3">
+              <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.05] to-transparent p-5">
+                <p className="text-xs text-white/40 font-medium">おすすめ（目標に近い×当たりやすい）</p>
+                <p className="text-base font-black text-white/95 mt-1">{pairText(result.recommended)}</p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-[10px] text-white/40">ワイド倍率（100円あたり）</p>
+                    <p className="text-sm font-black text-[#fbbf24]">
+                      {result.recommended.wide_odds.min.toFixed(1)}
+                      {result.recommended.wide_odds.max !== result.recommended.wide_odds.min ? `–${result.recommended.wide_odds.max.toFixed(1)}` : ''}倍
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-[10px] text-white/40">想定払戻（予算で）</p>
+                    <p className="text-sm font-black text-white/90">
+                      ¥{result.recommended.expected_payout_range.min.toLocaleString()}
+                      {result.recommended.expected_payout_range.max !== result.recommended.expected_payout_range.min ? `〜¥${result.recommended.expected_payout_range.max.toLocaleString()}` : ''}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 text-[11px] text-white/35">
+                  的中率（目安）: {(result.recommended.hit_probability_est * 100).toFixed(2)}% / 目標: {result.target_multiplier.toFixed(2)}倍
+                </p>
+              </div>
+
+              {result.alternatives?.length > 0 && (
+                <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.03] to-transparent p-5">
+                  <p className="text-sm font-bold text-white/90 mb-3">候補（上位{Math.min(10, result.count - 1)}件）</p>
+                  <div className="space-y-2">
+                    {result.alternatives.slice(0, 6).map((c, idx) => (
+                      <div key={idx} className="rounded-xl border border-white/10 bg-black/20 p-3">
+                        <p className="text-[12px] font-bold text-white/90">{pairText(c)}</p>
+                        <p className="text-[11px] text-white/40 mt-1">
+                          {c.wide_odds.min.toFixed(1)}
+                          {c.wide_odds.max !== c.wide_odds.min ? `–${c.wide_odds.max.toFixed(1)}` : ''}倍 /
+                          払戻 ¥{c.expected_payout_range.min.toLocaleString()}
+                          {c.expected_payout_range.max !== c.expected_payout_range.min ? `〜¥${c.expected_payout_range.max.toLocaleString()}` : ''} /
+                          的中 {(c.hit_probability_est * 100).toFixed(2)}%
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-2">
+                <Link href="/dashboard" className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all border border-white/10 bg-white/5 hover:bg-white/[0.08]">
+                  WIN5へ戻る
+                </Link>
+                <Link href="/chat" className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all border border-white/10 bg-white/5 hover:bg-white/[0.08]">
+                  AIに相談
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </AuthGuard>
+  )
+}
