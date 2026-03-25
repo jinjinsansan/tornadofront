@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import AuthGuard from '@/components/auth/AuthGuard'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
-import { Target, RefreshCw } from 'lucide-react'
+import { Target, RefreshCw, Sparkles, Shield, ChevronRight, BarChart3 } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -41,6 +41,7 @@ type RaceListResponse = {
   date: string
   ready: boolean
   ready_at: string | null
+  ready_race_id?: string | null
   races: RaceRow[]
   count: number
 }
@@ -49,6 +50,7 @@ export default function WidePage() {
   const [date, setDate] = useState('')
   const [ready, setReady] = useState(true)
   const [readyAt, setReadyAt] = useState<string | null>(null)
+  const [readyRaceId, setReadyRaceId] = useState<string | null>(null)
   const [races, setRaces] = useState<RaceRow[]>([])
   const [raceId, setRaceId] = useState('')
   const [budget, setBudget] = useState(1000)
@@ -77,6 +79,7 @@ export default function WidePage() {
       setDate(String(data?.date || ''))
       setReady(Boolean(data?.ready ?? true))
       setReadyAt(data?.ready_at || null)
+      setReadyRaceId((data as any)?.ready_race_id || null)
       setRaces(list)
       setRaceId(prev => prev || list?.[0]?.race_id || '')
     } catch (e: any) {
@@ -133,6 +136,13 @@ export default function WidePage() {
     return d.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
   }, [readyAt])
 
+  const targetGapLabel = useMemo(() => {
+    if (!result) return ''
+    const gap = result.recommended.multiplier_mid - result.target_multiplier
+    const sign = gap > 0 ? '+' : ''
+    return `${sign}${gap.toFixed(2)}倍`
+  }, [result])
+
   const pairText = (c: WideCandidate) => `${c.pair[0]?.horse_number} ${c.pair[0]?.horse_name} × ${c.pair[1]?.horse_number} ${c.pair[1]?.horse_name}`
 
   return (
@@ -154,17 +164,94 @@ export default function WidePage() {
         </header>
 
         <div className="p-4 space-y-3">
-          <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.05] to-transparent p-4">
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <p className="text-sm font-bold text-white/90">レース選択</p>
+          {/* Premium status */}
+          <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.06] to-transparent p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <div className="w-9 h-9 rounded-xl bg-[#ef4444]/10 border border-[#ef4444]/25 flex items-center justify-center">
+                    <Shield size={18} className="text-[#ef4444]" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/40 font-medium">Premium Mode</p>
+                    <p className="text-lg font-black text-white/95 leading-tight">ワイドで利益確保</p>
+                  </div>
+                </div>
+                <p className="text-[11px] text-white/45 mt-2">
+                  予算と欲しい払戻を入れると、目標倍率に「最も近い」かつ「当たりやすい」組み合わせを優先して提案します。
+                </p>
+              </div>
               <button
                 onClick={loadRaces}
                 disabled={loading}
-                className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/[0.08] transition disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/[0.08] transition disabled:opacity-40 shrink-0"
               >
                 <RefreshCw size={14} />
                 更新
               </button>
+            </div>
+
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                <p className="text-[10px] text-white/40">対象開催日</p>
+                <p className="text-sm font-black text-white/90">{dateLabel || '-'}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                <p className="text-[10px] text-white/40">レース数</p>
+                <p className="text-sm font-black text-white/90">{races.length || '-'}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                <p className="text-[10px] text-white/40">データ状況</p>
+                <p className={`text-sm font-black ${ready ? 'text-[#10b981]' : 'text-[#fbbf24]'}`}>
+                  {ready ? '利用可能' : '準備中'}
+                </p>
+              </div>
+            </div>
+
+            {!ready && (
+              <div className="mt-3 rounded-xl border border-[#fbbf24]/30 bg-[#fbbf24]/10 px-3 py-2 text-[11px] text-[#fbbf24]">
+                サーバー側のレースデータがまだ準備中です（目安 {readyAtLabel || '前日10:30'}）。準備でき次第、自動で利用可能になります。
+              </div>
+            )}
+            {ready && readyRaceId && (
+              <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] text-white/45">
+                データ確認OK（例: race_id {readyRaceId}）
+              </div>
+            )}
+          </div>
+
+          {/* How to */}
+          <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.04] to-transparent p-5">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold text-white/90 flex items-center gap-2">
+                <Sparkles size={16} className="text-[#fbbf24]" />
+                使い方（30秒）
+              </p>
+              <Link href="/chat" className="text-xs font-bold text-white/50 hover:text-white transition-colors inline-flex items-center gap-1">
+                AIに相談 <ChevronRight size={14} />
+              </Link>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-[11px]">
+              {[
+                { n: '1', t: 'レース選択', d: '当日のJRAから選ぶ' },
+                { n: '2', t: '目標を入力', d: '予算→欲しい払戻' },
+                { n: '3', t: '生成→購入', d: '候補から最終判断' },
+              ].map(s => (
+                <div key={s.n} className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <p className="text-[10px] text-white/35">STEP {s.n}</p>
+                  <p className="text-xs font-black text-white/90 mt-0.5">{s.t}</p>
+                  <p className="text-[10px] text-white/40 mt-1">{s.d}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.05] to-transparent p-4">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <p className="text-sm font-bold text-white/90 flex items-center gap-2">
+                <BarChart3 size={16} className="text-[#f97316]" />
+                条件入力
+              </p>
             </div>
 
             <div className="grid grid-cols-1 gap-2">
@@ -192,11 +279,21 @@ export default function WidePage() {
                 </div>
               </div>
 
-              {!ready && (
-                <div className="rounded-xl border border-[#fbbf24]/30 bg-[#fbbf24]/10 px-3 py-2 text-[11px] text-[#fbbf24]">
-                  データ準備中：前日10:30以降に利用できます（目安 {readyAtLabel || '前日10:30'}）
-                </div>
-              )}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { b: 1000, p: 5000, label: '1000→5000' },
+                  { b: 2000, p: 10000, label: '2000→10000' },
+                  { b: 5000, p: 25000, label: '5000→25000' },
+                ].map(x => (
+                  <button
+                    key={x.label}
+                    onClick={() => { setBudget(x.b); setTargetPayout(x.p) }}
+                    className="px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/[0.08] transition text-xs font-bold text-white/70"
+                  >
+                    {x.label}
+                  </button>
+                ))}
+              </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
@@ -270,6 +367,14 @@ export default function WidePage() {
                 <p className="mt-3 text-[11px] text-white/35">
                   的中率（目安）: {(result.recommended.hit_probability_est * 100).toFixed(2)}% / 目標: {result.target_multiplier.toFixed(2)}倍
                 </p>
+                <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3">
+                  <p className="text-[10px] text-white/40">なぜこの組み合わせ？</p>
+                  <p className="text-[11px] text-white/65 mt-1">
+                    目標 <span className="font-bold text-white/90">{result.target_multiplier.toFixed(2)}倍</span> に対して、推定倍率が
+                    <span className="font-bold text-[#fbbf24]"> {result.recommended.multiplier_mid.toFixed(2)}倍</span>（差 {targetGapLabel}）で、
+                    その近さと当たりやすさ（的中率目安）を掛け合わせたスコアが最大の組み合わせです。
+                  </p>
+                </div>
               </div>
 
               {result.alternatives?.length > 0 && (
