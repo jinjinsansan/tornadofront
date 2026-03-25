@@ -246,6 +246,24 @@ export default function DashboardPage() {
     return provisionalByRace[raceOrder] ? toRoman(horseNumber) : String(horseNumber)
   }
 
+  const horseNameByRace = useMemo(() => {
+    const m: Record<number, Record<number, string>> = {}
+    for (const r of races) {
+      const inner: Record<number, string> = {}
+      for (const h of r.horses || []) {
+        inner[h.horse_number] = h.horse_name
+      }
+      m[r.race_order] = inner
+    }
+    return m
+  }, [races])
+
+  const horseLabel = (raceOrder: number, horseNumber: number) => {
+    const no = horseNoLabel(raceOrder, horseNumber)
+    const name = horseNameByRace[raceOrder]?.[horseNumber]
+    return name ? `${no} ${name}` : no
+  }
+
   const toggleHorse = (raceOrder: number, horseNumber: number) => {
     const key = `R${raceOrder}`
     setCustomTickets(prev => {
@@ -1086,8 +1104,11 @@ export default function DashboardPage() {
                       <div key={race.race_order} className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-2.5 text-center">
                         <p className="text-[10px] text-tornado-muted font-medium">R{race.race_order}</p>
                         <p className="text-base font-black mt-0.5">{sel.length}</p>
-                        <p className="text-[9px] text-tornado-muted truncate">
-                          {sel.map(n => horseNoLabel(race.race_order, n)).join(', ') || '-'}
+                        <p
+                          className="text-[9px] text-tornado-muted truncate"
+                          title={sel.map(n => horseLabel(race.race_order, n)).join(' / ')}
+                        >
+                          {sel.map(n => horseLabel(race.race_order, n)).join(' / ') || '-'}
                         </p>
                       </div>
                     )
