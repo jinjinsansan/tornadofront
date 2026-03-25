@@ -10,8 +10,6 @@ const API = process.env.NEXT_PUBLIC_API_URL || ''
 export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [showInvite, setShowInvite] = useState(false)
-  const [code, setCode] = useState('')
   const router = useRouter()
 
   const startLineLogin = async () => {
@@ -25,37 +23,6 @@ export default function LoginPage() {
         return
       }
       window.location.href = data.url
-    } catch {
-      setError('通信エラーが発生しました')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleInviteSubmit = async () => {
-    if (!code.trim()) {
-      setError('招待コードを入力してください')
-      return
-    }
-    setError('')
-    setLoading(true)
-
-    try {
-      const res = await fetch(`${API}/api/auth/invite`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code.trim().toUpperCase() }),
-      })
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.error || '認証に失敗しました')
-        return
-      }
-
-      localStorage.setItem('tornado_token', data.token)
-      localStorage.setItem('tornado_user', JSON.stringify(data.user))
-      router.push('/mypage')
     } catch {
       setError('通信エラーが発生しました')
     } finally {
@@ -95,40 +62,6 @@ export default function LoginPage() {
               {loading ? '準備中...' : 'LINEでログイン'}
             </button>
           </div>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setShowInvite(v => !v)}
-              className="text-xs text-tornado-muted underline hover:text-white transition"
-            >
-              {showInvite ? '旧招待コードログインを閉じる' : '旧招待コードログイン（テスト用）'}
-            </button>
-          </div>
-
-          {showInvite && (
-            <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-3">
-              <div>
-                <label className="text-xs text-tornado-muted mb-1.5 block">招待コード</label>
-                <input
-                  type="text"
-                  value={code}
-                  onChange={e => setCode(e.target.value.toUpperCase())}
-                  onKeyDown={e => e.key === 'Enter' && handleInviteSubmit()}
-                  placeholder="TRN-XXXX-XXXX"
-                  className="w-full bg-tornado-bg border border-tornado-border rounded-xl px-4 py-3.5 text-center text-lg font-mono tracking-widest text-tornado-text placeholder-tornado-muted/50 focus:outline-none focus:border-tornado-accent transition"
-                  maxLength={14}
-                  disabled={loading}
-                />
-              </div>
-              <button
-                onClick={handleInviteSubmit}
-                disabled={loading || !code.trim()}
-                className="w-full py-2.5 bg-white/[0.06] border border-white/10 text-white font-bold rounded-xl hover:bg-white/[0.08] transition disabled:opacity-40"
-              >
-                {loading ? '認証中...' : '招待コードでログイン'}
-              </button>
-            </div>
-          )}
         </div>
 
         <div className="text-center mt-6">
