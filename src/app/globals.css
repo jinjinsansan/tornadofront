@@ -17,6 +17,13 @@ body {
   padding-top: env(safe-area-inset-top);
 }
 
+/* iOS Safari keyboard / bottom bar safe area */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 /* Gradient text */
 .gradient-text {
   background: linear-gradient(135deg, #ef4444, #f97316, #fbbf24);

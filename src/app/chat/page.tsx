@@ -25,6 +25,10 @@ export default function ChatPage() {
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    messagesEndRef.current?.scrollIntoView({ behavior, block: 'end' })
+  }
+
   useEffect(() => {
     fetch(`${API}/api/chat/sessions`, { method: 'POST' })
       .then(r => r.json())
@@ -72,7 +76,7 @@ export default function ChatPage() {
   }
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    scrollToBottom('smooth')
   }, [messages, quickReplies])
 
   const sendMessage = async (text?: string) => {
@@ -189,7 +193,7 @@ export default function ChatPage() {
 
   return (
     <AuthGuard>
-    <div className="flex flex-col h-screen bg-[#050608]">
+    <div className="flex flex-col bg-[#050608]" style={{ height: '100dvh' }}>
 
       {/* ── Header ── */}
       <header className="sticky top-0 z-30 flex items-center justify-between px-4 py-2.5 border-b border-[#2B3139]/50 bg-[#0B0E11]/90 backdrop-blur-md flex-shrink-0">
@@ -341,8 +345,11 @@ export default function ChatPage() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                onFocus={() => {
+                  window.setTimeout(() => scrollToBottom('auto'), 150)
+                }}
                 placeholder="メッセージを入力..."
-                className="flex-1 bg-transparent py-2.5 text-[14px] text-[#EAECEF] placeholder-[#848E9C] outline-none disabled:opacity-50"
+                className="flex-1 bg-transparent py-2.5 text-[16px] text-[#EAECEF] placeholder-[#848E9C] outline-none disabled:opacity-50"
                 disabled={isLoading}
               />
             </div>
