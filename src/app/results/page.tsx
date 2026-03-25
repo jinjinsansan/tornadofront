@@ -82,7 +82,7 @@ export default function ResultsPage() {
           <div className="bg-tornado-card border border-tornado-border rounded-xl p-4">
             <p className="text-sm font-bold mb-2">🧪 過去52週シミュレーター（最小版）</p>
             <p className="text-xs text-tornado-muted mb-3">
-              ※ Supabaseに「過去レース+全馬スコア+結果(winners)」が揃っている週だけ計算します。
+              ※ 過去レースデータ（全馬スコアと結果）が揃っている週だけ計算できます。今後データが蓄積していくほど、あなたの設定でバックテストが可能になります。
             </p>
             <button
               onClick={runBacktest}
