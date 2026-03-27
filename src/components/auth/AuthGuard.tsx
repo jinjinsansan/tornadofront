@@ -1,14 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { isFreeTrial } from '@/config/freeTrial'
+import { isFreeTrial, isLineAdded } from '@/config/freeTrial'
+import LineGateScreen from './LineGateScreen'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [isAuth, setIsAuth] = useState(false)
   const [checking, setChecking] = useState(true)
+  const [showLineGate, setShowLineGate] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -18,10 +20,16 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       try {
         const token = localStorage.getItem('tornado_token') || ''
 
-        // ── Free Trial: トークンがなくてもゲストとして通す ──
+        // ── Free Trial: トークンなし → LINE追加済みならゲスト通過、未追加ならゲート表示 ──
         if (!token && isFreeTrial()) {
           if (!cancelled) {
-            setIsAuth(true)
+            if (isLineAdded()) {
+              setIsAuth(true)
+              setShowLineGate(false)
+            } else {
+              setIsAuth(false)
+              setShowLineGate(true)
+            }
             setChecking(false)
           }
           return
@@ -57,9 +65,15 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             localStorage.removeItem('tornado_user')
           } catch {}
           if (!cancelled) {
-            // トークン無効でもフリートライアル中ならゲストとして通す
+            // トークン無効でもフリートライアル中 → LINE追加チェック
             if (isFreeTrial()) {
-              setIsAuth(true)
+              if (isLineAdded()) {
+                setIsAuth(true)
+                setShowLineGate(false)
+              } else {
+                setIsAuth(false)
+                setShowLineGate(true)
+              }
               setChecking(false)
             } else {
               setIsAuth(false)
@@ -84,6 +98,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [router])
 
+  /** LINE追加完了コールバック — ゲートを閉じてゲスト通過 */
+  const handleLineComplete = useCallback(() => {
+    setShowLineGate(false)
+    setIsAuth(true)
+  }, [])
+
   if (checking) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#050608] gap-4">
@@ -91,6 +111,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         <p className="text-sm text-[#848E9C]">読み込み中...</p>
       </div>
     )
+  }
+
+  if (showLineGate) {
+    return <LineGateScreen onComplete={handleLineComplete} />
   }
 
   if (!isAuth) return null
