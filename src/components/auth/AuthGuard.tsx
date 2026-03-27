@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { isFreeTrial } from '@/config/freeTrial'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -16,6 +17,16 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const run = async () => {
       try {
         const token = localStorage.getItem('tornado_token') || ''
+
+        // ── Free Trial: トークンがなくてもゲストとして通す ──
+        if (!token && isFreeTrial()) {
+          if (!cancelled) {
+            setIsAuth(true)
+            setChecking(false)
+          }
+          return
+        }
+
         if (!token) {
           if (!cancelled) {
             setChecking(false)
@@ -46,9 +57,15 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             localStorage.removeItem('tornado_user')
           } catch {}
           if (!cancelled) {
-            setIsAuth(false)
-            setChecking(false)
-            router.replace('/login')
+            // トークン無効でもフリートライアル中ならゲストとして通す
+            if (isFreeTrial()) {
+              setIsAuth(true)
+              setChecking(false)
+            } else {
+              setIsAuth(false)
+              setChecking(false)
+              router.replace('/login')
+            }
           }
           return
         }

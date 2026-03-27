@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Send, Flame, LifeBuoy, RefreshCw } from 'lucide-react'
 import AuthGuard from '@/components/auth/AuthGuard'
+import FreeTrialBanner from '@/components/auth/FreeTrialBanner'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 import { useRouter } from 'next/navigation'
 
@@ -194,6 +195,9 @@ export default function ChatPage() {
   return (
     <AuthGuard>
     <div className="flex flex-col bg-[#050608]" style={{ height: '100dvh' }}>
+
+      {/* Free Trial Banner */}
+      <FreeTrialBanner />
 
       {/* ── Header ── */}
       <header className="sticky top-0 z-30 flex items-center justify-between px-4 py-2.5 border-b border-[#2B3139]/50 bg-[#0B0E11]/90 backdrop-blur-md flex-shrink-0">

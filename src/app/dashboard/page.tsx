@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import AuthGuard from '@/components/auth/AuthGuard'
+import FreeTrialBanner from '@/components/auth/FreeTrialBanner'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 import { useWin5Store } from '@/store/win5Store'
 import { ChevronDown, Save, RefreshCw, FlaskConical, Users, Flame, Zap, Target, TrendingUp, Shield, Swords, BarChart3 } from 'lucide-react'
@@ -346,7 +347,7 @@ export default function DashboardPage() {
   const saveCurrentTicket = async () => {
     const token = localStorage.getItem('tornado_token') || ''
     if (!token) {
-      setSaveMsg('ログインが必要です')
+      setSaveMsg('会員限定機能です（LINEログインが必要です）')
       return
     }
     if (Object.keys(customTickets).length === 0) return
@@ -408,7 +409,7 @@ export default function DashboardPage() {
   const runOverlap = async () => {
     const token = localStorage.getItem('tornado_token') || ''
     if (!token) {
-      setOverlapMsg('ログインが必要です')
+      setOverlapMsg('会員限定機能です（LINEログインが必要です）')
       return
     }
     if (Object.keys(customTickets).length === 0) return
@@ -441,7 +442,7 @@ export default function DashboardPage() {
   const runHeatmap = async () => {
     const token = localStorage.getItem('tornado_token') || ''
     if (!token) {
-      setHeatmapMsg('ログインが必要です')
+      setHeatmapMsg('会員限定機能です（LINEログインが必要です）')
       return
     }
     if (Object.keys(customTickets).length === 0) return
@@ -566,6 +567,7 @@ export default function DashboardPage() {
 
   return (
     <AuthGuard>
+    <FreeTrialBanner />
     <div className="min-h-screen max-w-2xl mx-auto pb-24">
       {/* Premium Header */}
       <header className="sticky top-0 z-30 border-b border-white/[0.06]" style={{ background: 'linear-gradient(180deg, rgba(6,11,24,0.95) 0%, rgba(6,11,24,0.85) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>

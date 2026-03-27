@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import AuthGuard from '@/components/auth/AuthGuard'
+import FreeTrialBanner from '@/components/auth/FreeTrialBanner'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 import { useWin5Store } from '@/store/win5Store'
 
@@ -67,6 +68,7 @@ export default function ResultsPage() {
 
   return (
     <AuthGuard>
+      <FreeTrialBanner />
       <div className="min-h-screen max-w-2xl mx-auto pb-20">
         <header className="sticky top-0 z-30 bg-tornado-deep/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">

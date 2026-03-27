@@ -10,6 +10,7 @@ import {
   FileText, History,
 } from 'lucide-react'
 import AuthGuard from '@/components/auth/AuthGuard'
+import FreeTrialBanner from '@/components/auth/FreeTrialBanner'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 
 const API = process.env.NEXT_PUBLIC_API_URL || ''
@@ -220,6 +221,7 @@ export default function MyPage() {
 
   return (
     <AuthGuard>
+      <FreeTrialBanner />
       <div className="min-h-screen bg-[#0B0E11] text-[#EAECEF] overflow-x-hidden">
 
         {/* Header */}

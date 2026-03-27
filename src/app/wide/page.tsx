@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import AuthGuard from '@/components/auth/AuthGuard'
+import FreeTrialBanner from '@/components/auth/FreeTrialBanner'
 import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 import { Target, RefreshCw, Sparkles, Shield, ChevronRight, BarChart3 } from 'lucide-react'
 
@@ -147,6 +148,7 @@ export default function WidePage() {
 
   return (
     <AuthGuard>
+      <FreeTrialBanner />
       <div className="min-h-screen max-w-2xl mx-auto pb-24 bg-[#0B0E11]">
         <header className="sticky top-0 z-30 border-b border-white/[0.06]" style={{ background: 'linear-gradient(180deg, rgba(6,11,24,0.95) 0%, rgba(6,11,24,0.85) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
           <div className="px-4 py-3 flex items-center justify-between">
