@@ -45,3 +45,18 @@ export function markLineAdded(): void {
   if (typeof window === 'undefined') return
   localStorage.setItem(LINE_ADDED_KEY, 'true')
 }
+
+/** localStorage キー: LINE友だち追加ボタンを押したフラグ */
+const LINE_OPENED_KEY = 'tornado_line_opened'
+
+/** LINE友だち追加ボタンを押したかどうか（localStorage） */
+export function isLineOpened(): boolean {
+  if (typeof window === 'undefined') return false
+  return localStorage.getItem(LINE_OPENED_KEY) === 'true'
+}
+
+/** LINE友だち追加ボタンを押したとしてマーク */
+export function markLineOpened(): void {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(LINE_OPENED_KEY, 'true')
+}

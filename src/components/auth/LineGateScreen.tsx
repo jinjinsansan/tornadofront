@@ -8,6 +8,8 @@ import {
   LINE_ADD_FRIEND_URL,
   freeTrialRemainingMs,
   markLineAdded,
+  isLineOpened,
+  markLineOpened,
 } from '@/config/freeTrial'
 import { useEffect } from 'react'
 
@@ -21,6 +23,11 @@ import { useEffect } from 'react'
 export default function LineGateScreen({ onComplete }: { onComplete: () => void }) {
   const [remaining, setRemaining] = useState('')
   const [lineOpened, setLineOpened] = useState(false)
+
+  // 以前にLINEボタンを押していたら復元
+  useEffect(() => {
+    if (isLineOpened()) setLineOpened(true)
+  }, [])
 
   useEffect(() => {
     const tick = () => {
@@ -43,6 +50,7 @@ export default function LineGateScreen({ onComplete }: { onComplete: () => void 
 
   const handleOpenLine = () => {
     window.open(LINE_ADD_FRIEND_URL, '_blank', 'noopener,noreferrer')
+    markLineOpened()
     setLineOpened(true)
   }
 
