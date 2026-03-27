@@ -18,7 +18,7 @@ export const FREE_TRIAL_END = new Date('2026-03-29T17:00:00+09:00')
  * 公式LINE 友だち追加URL
  * ※ 実際のURLに差し替えてください
  */
-export const LINE_ADD_FRIEND_URL = 'https://lin.ee/XXXXXXXXX'
+export const LINE_ADD_FRIEND_URL = 'https://lin.ee/tnLAnfF'
 
 /** localStorage キー: LINE友だち追加済みフラグ */
 export const LINE_ADDED_KEY = 'tornado_line_added'
