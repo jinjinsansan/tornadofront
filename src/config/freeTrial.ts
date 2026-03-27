@@ -9,7 +9,7 @@
  */
 
 /** 無料開放 開始日時 (JST) */
-export const FREE_TRIAL_START = new Date('2026-03-28T00:00:00+09:00')
+export const FREE_TRIAL_START = new Date('2026-03-27T00:00:00+09:00')
 
 /** 無料開放 終了日時 (JST) — 日曜17:00 */
 export const FREE_TRIAL_END = new Date('2026-03-29T17:00:00+09:00')
