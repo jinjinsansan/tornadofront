@@ -135,20 +135,17 @@ export default function LineGateScreen({ onComplete }: { onComplete: () => void 
               <ExternalLink className="h-4 w-4" />
             </button>
 
-            {/* Complete Button - appears after LINE opened */}
-            <button
-              onClick={handleComplete}
-              disabled={!lineOpened}
-              className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-base transition-all active:scale-[0.98] ${
-                lineOpened
-                  ? 'bg-gradient-to-r from-tornado-accent to-tornado-orange text-white hover:opacity-90'
-                  : 'bg-white/5 text-white/30 border border-white/10 cursor-not-allowed'
-              }`}
-              style={lineOpened ? { boxShadow: '0 0 25px rgba(239,68,68,0.3)' } : {}}
-            >
-              <CheckCircle className="h-5 w-5" />
-              追加しました — 無料体験を始める
-            </button>
+            {/* Complete Button - appears only after LINE opened */}
+            {lineOpened && (
+              <button
+                onClick={handleComplete}
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-base transition-all active:scale-[0.98] bg-gradient-to-r from-tornado-accent to-tornado-orange text-white hover:opacity-90"
+                style={{ boxShadow: '0 0 25px rgba(239,68,68,0.3)' }}
+              >
+                <CheckCircle className="h-5 w-5" />
+                追加しました — 無料体験を始める
+              </button>
+            )}
           </div>
 
           {/* Benefits */}
