@@ -35,6 +35,7 @@ type WideResult = {
   recommended: WideCandidate
   alternatives: WideCandidate[]
   count: number
+  odds_estimated?: boolean
   note?: string
 }
 
@@ -347,12 +348,17 @@ export default function WidePage() {
 
           {result && (
             <div className="space-y-3">
+              {result.odds_estimated && (
+                <div className="rounded-2xl border border-[#fbbf24]/30 bg-[#fbbf24]/10 px-4 py-3 text-[12px] text-[#fbbf24]">
+                  ⚠️ 現在オッズ未公開のため、AI勝率からの推定値で計算しています。オッズ公開後に再生成すると、より正確な結果が得られます。
+                </div>
+              )}
               <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.05] to-transparent p-5">
                 <p className="text-xs text-white/40 font-medium">おすすめ（目標に近い×当たりやすい）</p>
                 <p className="text-base font-black text-white/95 mt-1">{pairText(result.recommended)}</p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-                    <p className="text-[10px] text-white/40">ワイド倍率（100円あたり）</p>
+                    <p className="text-[10px] text-white/40">ワイド倍率（100円あたり）{result.odds_estimated ? ' ※推定' : ''}</p>
                     <p className="text-sm font-black text-[#fbbf24]">
                       {result.recommended.wide_odds.min.toFixed(1)}
                       {result.recommended.wide_odds.max !== result.recommended.wide_odds.min ? `–${result.recommended.wide_odds.max.toFixed(1)}` : ''}倍
