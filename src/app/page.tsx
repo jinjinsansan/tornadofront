@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -17,7 +18,9 @@ import {
   PieChart,
   Flame,
   Shield,
+  Clock,
 } from "lucide-react";
+import { isFreeTrial, freeTrialRemainingMs } from "@/config/freeTrial";
 
 const PURCHASE_FORM_URL = "https://president-of-keiba.com/fm/30881/bFMgNR3S";
 
@@ -90,6 +93,106 @@ const features = [
     },
   },
 ];
+
+/* ── Free Trial Section (期間限定無料開放) ── */
+function FreeTrialSection() {
+  const [remaining, setRemaining] = useState("");
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!isFreeTrial()) {
+      setVisible(false);
+      return;
+    }
+    setVisible(true);
+
+    const tick = () => {
+      const ms = freeTrialRemainingMs();
+      if (ms <= 0) {
+        setRemaining("00:00:00");
+        return;
+      }
+      const totalSec = Math.floor(ms / 1000);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      const pad = (n: number) => String(n).padStart(2, "0");
+      setRemaining(`${pad(h)}:${pad(m)}:${pad(s)}`);
+    };
+
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <section className="relative py-10 sm:py-14 overflow-hidden" style={{ background: "linear-gradient(180deg, #0a0f1e 0%, #060b18 100%)" }}>
+      {/* Glow */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-tornado-accent/[0.06] blur-[120px]" />
+
+      <div className="relative z-10 mx-auto max-w-2xl px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="rounded-2xl sm:rounded-3xl border-2 border-tornado-accent/40 p-6 sm:p-8 text-center"
+          style={{
+            background: "linear-gradient(135deg, rgba(239,68,68,0.08), rgba(249,115,22,0.04), rgba(6,11,24,0.9))",
+            boxShadow: "0 0 40px rgba(239,68,68,0.15), 0 0 80px rgba(239,68,68,0.05)",
+          }}
+        >
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-tornado-gold/40 bg-tornado-gold/10 px-4 py-1.5 mb-4">
+            <Flame className="h-4 w-4 text-tornado-gold" />
+            <span className="text-xs font-bold text-tornado-gold tracking-wide">期間限定 特別開放</span>
+          </div>
+
+          <h2 className="text-xl sm:text-2xl font-black mb-2">
+            <span className="bg-gradient-to-r from-tornado-accent via-tornado-orange to-tornado-gold bg-clip-text text-transparent">
+              3/27〜3/29 無料体験中
+            </span>
+          </h2>
+
+          <p className="text-sm text-white/60 mb-5">
+            この期間だけ、ログイン不要で全機能をお試しいただけます（一部機能を除く）
+          </p>
+
+          {/* Countdown */}
+          <div className="inline-flex items-center gap-2 rounded-xl bg-black/40 border border-white/10 px-5 py-3 mb-6">
+            <Clock className="h-4 w-4 text-tornado-accent animate-pulse" />
+            <span className="text-xs text-white/50">終了まで</span>
+            <span className="text-lg font-mono font-black tracking-wider text-white">{remaining}</span>
+          </div>
+
+          {/* CTA */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-base font-bold text-white transition-all hover:opacity-90 active:scale-95"
+              style={{
+                background: "linear-gradient(135deg, #ef4444, #f97316)",
+                boxShadow: "0 0 25px rgba(239,68,68,0.3)",
+              }}
+            >
+              <Zap className="h-5 w-5" />
+              WIN5モードを使う
+            </Link>
+            <Link
+              href="/chat"
+              className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-base font-bold text-white/80 border border-white/15 bg-white/5 hover:bg-white/10 transition active:scale-95"
+            >
+              <MessageCircle className="h-5 w-5" />
+              AIに相談する
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   return (
@@ -264,6 +367,9 @@ export default function Home() {
           <ChevronDown className="h-5 w-5 animate-bounce text-tornado-accent/50" />
         </motion.div>
       </section>
+
+      {/* ━━━ Free Trial Banner Section ━━━ */}
+      <FreeTrialSection />
 
       {/* ── Content wrapper ── */}
       <div className="mx-auto max-w-[1200px]">
