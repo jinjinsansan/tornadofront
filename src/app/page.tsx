@@ -270,15 +270,6 @@ export default function Home() {
             <Link href="/dashboard" className="hidden md:inline text-sm text-white/50 hover:text-white transition">ダッシュボード</Link>
             <Link href="/wide" className="hidden md:inline text-sm text-white/50 hover:text-white transition">ワイドモード</Link>
             <a
-              href="https://mrwide.tornadeai.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden md:inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-tornado-gold/30 bg-tornado-gold/5 text-tornado-gold hover:bg-tornado-gold/10 transition"
-            >
-              <TrendingUp className="h-3 w-3" />
-              Mr.Wide
-            </a>
-            <a
               href={PURCHASE_FORM_URL}
               target="_blank"
               rel="noopener noreferrer"
@@ -861,7 +852,6 @@ export default function Home() {
             <Link href="/chat" className="hover:text-white transition">AIチャット</Link>
             <Link href="/dashboard" className="hover:text-white transition">ダッシュボード</Link>
             <Link href="/wide" className="hover:text-white transition">ワイドモード</Link>
-            <a href="https://mrwide.tornadeai.com/" target="_blank" rel="noopener noreferrer" className="hover:text-tornado-gold transition">Mr.Wide</a>
           </div>
           <p className="text-xs text-white/20">&copy; 2026 TornadoAI</p>
         </div>
